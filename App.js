@@ -27,12 +27,14 @@ import HelpSupportScreen from "./src/screens/HelpSupportScreen";
 import NotificationsScreen from "./src/screens/NotificationsScreen";
 import AboutNaturyzScreen from "./src/screens/AboutNaturyzScreen";
 import PrivacyTermsScreen from "./src/screens/PrivacyTermsScreen";
+import DrawerMenu from "./src/components/DrawerMenu";
 
 const CREAM = "#FDFFF1";
 
 export default function App() {
   // Current screen state
   const [currentScreen, setCurrentScreen] = useState("splash");
+  const [drawerVisible, setDrawerVisible] = useState(false);
   const [cartItems, setCartItems] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [cartLoaded, setCartLoaded] = useState(false);
@@ -635,6 +637,7 @@ export default function App() {
       case "home":
         return (
           <HomeScreen
+            onMenuPress={() => setDrawerVisible(true)}
             onTabPress={handleHomeTabPress}
             cartCount={cartCount}
             onWishlistPress={() => setCurrentScreen("wishlist")}
@@ -802,7 +805,17 @@ export default function App() {
     <SafeAreaProvider>
       <StatusBar backgroundColor={CREAM} barStyle="dark-content" />
 
-      <View style={styles.container}>{renderScreen()}</View>
+      <View style={styles.container}>
+        {renderScreen()}
+
+        <DrawerMenu
+          visible={drawerVisible}
+          onClose={() => setDrawerVisible(false)}
+          onNavigate={(screen) => {
+            setCurrentScreen(screen);
+          }}
+        />
+      </View>
     </SafeAreaProvider>
   );
 }
