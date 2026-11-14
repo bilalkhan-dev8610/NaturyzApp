@@ -16,8 +16,10 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
 import { sportsNutritionProducts } from "../data/sportsNutritionProducts";
+import BottomTabBar from "../components/BottomTabBar";
+import TopNavbar from "../components/TopNavbar";
+import ProductCard from "../components/product/ProductCard";
 
 const GREEN = "#83AE12";
 const DARK_GREEN = "#56880B";
@@ -55,6 +57,7 @@ export default function SearchScreen({
   onAddToCart,
   onTabPress,
   cartCount = 0,
+  cartItems = [],
 }) {
   const [searchText, setSearchText] = useState("");
   const [recentSearches, setRecentSearches] = useState([]);
@@ -203,150 +206,33 @@ export default function SearchScreen({
 
   const renderProductCard = (product) => {
     const isWishlisted = wishlistItems.some((item) => item.id === product.id);
-
-    const description =
-      product.description ||
-      product.subtitle ||
-      [product.size, product.flavour].filter(Boolean).join(" | ");
-
+    const isInCart = cartItems.some((item) => item.id === product.id);
     return (
-      <View key={product.id} style={styles.productCard}>
-        <Pressable
-          style={styles.productImageButton}
-          onPress={() => handleProductPress(product)}
-        >
-          <Image
-            source={product.image}
-            style={styles.productImage}
-            resizeMode="contain"
-          />
-        </Pressable>
-
-        <View style={styles.productInfo}>
-          <Pressable
-            style={styles.productTitleArea}
-            onPress={() => handleProductPress(product)}
-          >
-            <Text style={styles.productName} numberOfLines={2}>
-              {product.name}
-            </Text>
-
-            {!!description && (
-              <Text style={styles.productDescription} numberOfLines={2}>
-                {description}
-              </Text>
-            )}
-          </Pressable>
-
-          {typeof product.rating === "number" && (
-            <View style={styles.ratingRow}>
-              <Ionicons name="star" size={19} color="#F5B800" />
-              <Text style={styles.ratingValue}>
-                {product.rating.toFixed(1)}
-              </Text>
-
-              {typeof product.reviews === "number" && (
-                <Text style={styles.reviewCount}>
-                  ({product.reviews.toLocaleString("en-IN")} Reviews)
-                </Text>
-              )}
-            </View>
-          )}
-
-          <View style={styles.priceRow}>
-            <Text style={styles.price}>{formatPrice(product.price)}</Text>
-
-            {product.mrp > product.price && (
-              <Text style={styles.mrp}>{formatPrice(product.mrp)}</Text>
-            )}
-
-            {product.discount > 0 && (
-              <View style={styles.discountBadge}>
-                <Text style={styles.discountText}>{product.discount}% Off</Text>
-              </View>
-            )}
-          </View>
-
-          <Pressable
-            onPress={() => handleAddToCart(product)}
-            style={({ pressed }) => [
-              styles.addToCartButton,
-              pressed && styles.pressed,
-            ]}
-          >
-            <Ionicons name="cart-outline" size={21} color="#FFFFFF" />
-          </Pressable>
-        </View>
-
-        <Pressable
-          onPress={() => toggleWishlist(product)}
-          style={styles.wishlistButton}
-          hitSlop={8}
-        >
-          <Ionicons
-            name={isWishlisted ? "heart" : "heart-outline"}
-            size={27}
-            color={isWishlisted ? "#E53935" : TEXT}
-          />
-        </Pressable>
-      </View>
+      <ProductCard
+        key={product.id}
+        product={product}
+        isInCart={isInCart}
+        variant="horizontal"
+        isWishlisted={isWishlisted}
+        onPress={handleProductPress}
+        onWishlistPress={toggleWishlist}
+        onAddToCart={handleAddToCart}
+      />
     );
   };
-
-  const tabs = [
-    { label: "Home", icon: "home-outline", activeIcon: "home" },
-    { label: "Categories", icon: "grid-outline", activeIcon: "grid" },
-    { label: "Search", icon: "search-outline", activeIcon: "search" },
-    { label: "Orders", icon: "cube-outline", activeIcon: "cube" },
-    { label: "Profile", icon: "person-outline", activeIcon: "person" },
-  ];
 
   return (
     <SafeAreaView style={styles.safeArea} edges={["top"]}>
       <StatusBar backgroundColor="#FFFFFF" barStyle="dark-content" />
 
       <View style={styles.container}>
-        {/* HEADER */}
-        <View style={styles.header}>
-          <Pressable style={styles.headerButton} onPress={onBack} hitSlop={8}>
-            <Ionicons name="arrow-back" size={29} color={TEXT} />
-          </Pressable>
-
-          <View style={styles.logoWrapper}>
-            <Image
-              source={require("../../assets/images/naturyz-home-logo.png")}
-              style={styles.logo}
-              resizeMode="contain"
-            />
-          </View>
-
-          <Pressable
-            style={styles.headerButton}
-            onPress={() => onWishlistPress && onWishlistPress()}
-            hitSlop={8}
-          >
-            <Ionicons name="heart-outline" size={29} color={TEXT} />
-          </Pressable>
-
-          <Pressable
-            style={styles.headerButton}
-            onPress={onCartPress}
-            hitSlop={8}
-          >
-            <View>
-              <Ionicons name="cart-outline" size={31} color={TEXT} />
-
-              {cartCount > 0 && (
-                <View style={styles.cartBadge}>
-                  <Text style={styles.cartBadgeText}>
-                    {cartCount > 99 ? "99+" : cartCount}
-                  </Text>
-                </View>
-              )}
-            </View>
-          </Pressable>
-        </View>
-
+        {/* REUSABLE TOP NAVBAR */}
+        <TopNavbar
+          leftAction="none"
+          onWishlistPress={onWishlistPress}
+          onCartPress={onCartPress}
+          cartCount={cartCount}
+        />
         <ScrollView
           style={styles.scrollView}
           contentContainerStyle={styles.scrollContent}
@@ -489,39 +375,8 @@ export default function SearchScreen({
           <View style={styles.bottomSpace} />
         </ScrollView>
 
-        {/* BOTTOM NAVIGATION */}
-        <View style={styles.bottomNavigation}>
-          {tabs.map((tab) => {
-            const active = tab.label === "Search";
-
-            return (
-              <Pressable
-                key={tab.label}
-                onPress={() => handleTabPress(tab.label)}
-                style={styles.tabItem}
-              >
-                <View
-                  style={[
-                    styles.tabIconContainer,
-                    active && styles.activeTabContainer,
-                  ]}
-                >
-                  <Ionicons
-                    name={active ? tab.activeIcon : tab.icon}
-                    size={27}
-                    color={active ? DARK_GREEN : TEXT}
-                  />
-                </View>
-
-                <Text
-                  style={[styles.tabLabel, active && styles.activeTabLabel]}
-                >
-                  {tab.label}
-                </Text>
-              </Pressable>
-            );
-          })}
-        </View>
+        {/* REUSABLE BOTTOM NAVIGATION */}
+        <BottomTabBar activeTab="Search" onTabPress={handleTabPress} />
       </View>
 
       {/* SORT MODAL */}
@@ -630,48 +485,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#FFFFFF",
-  },
-  header: {
-    height: 76,
-    paddingHorizontal: 13,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    backgroundColor: "#FFFFFF",
-  },
-  headerButton: {
-    width: 39,
-    height: 48,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  logoWrapper: {
-    flex: 1,
-    height: 62,
-    marginHorizontal: 7,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  logo: {
-    width: "100%",
-    height: "100%",
-  },
-  cartBadge: {
-    position: "absolute",
-    right: -7,
-    top: -6,
-    minWidth: 21,
-    height: 21,
-    borderRadius: 11,
-    paddingHorizontal: 4,
-    backgroundColor: GREEN,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  cartBadgeText: {
-    color: "#FFFFFF",
-    fontSize: 11,
-    fontWeight: "800",
   },
   scrollView: {
     flex: 1,
@@ -959,47 +772,7 @@ const styles = StyleSheet.create({
   bottomSpace: {
     height: 15,
   },
-  bottomNavigation: {
-    height: 75,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-around",
-    backgroundColor: "#FFFFFF",
-    borderTopWidth: 1,
-    borderTopColor: "#EEEEEE",
-    paddingHorizontal: 5,
-    elevation: 10,
-    shadowColor: "#000000",
-    shadowOffset: { width: 0, height: -3 },
-    shadowOpacity: 0.07,
-    shadowRadius: 5,
-  },
-  tabItem: {
-    flex: 1,
-    height: "100%",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  tabIconContainer: {
-    width: 57,
-    height: 37,
-    borderRadius: 22,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  activeTabContainer: {
-    backgroundColor: "#F0F6DE",
-  },
-  tabLabel: {
-    color: TEXT,
-    fontSize: 11,
-    fontWeight: "500",
-    marginTop: 2,
-  },
-  activeTabLabel: {
-    color: DARK_GREEN,
-    fontWeight: "800",
-  },
+
   modalOverlay: {
     flex: 1,
     backgroundColor: "rgba(0,0,0,0.38)",

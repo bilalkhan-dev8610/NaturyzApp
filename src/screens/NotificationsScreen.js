@@ -2,7 +2,6 @@ import React, { useMemo, useState } from "react";
 import {
   View,
   Text,
-  Image,
   ScrollView,
   Pressable,
   StyleSheet,
@@ -13,6 +12,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
+import TopNavbar from "../components/TopNavbar";
 
 const GREEN = "#78A900";
 const DARK_GREEN = "#578800";
@@ -51,7 +51,8 @@ const INITIAL_NOTIFICATIONS = [
     section: "Yesterday",
     type: "Orders",
     title: "Out for Delivery",
-    message: "Your order #NYZ7845623 is out for delivery. Expect it by today, 8 PM.",
+    message:
+      "Your order #NYZ7845623 is out for delivery. Expect it by today, 8 PM.",
     time: "Yesterday, 10:20 AM",
     icon: "car-outline",
     unread: false,
@@ -62,8 +63,7 @@ const INITIAL_NOTIFICATIONS = [
     section: "Yesterday",
     type: "Updates",
     title: "Rate Your Purchase",
-    message:
-      "How was your experience with Triple Strength Omega-3 Fish Oil?",
+    message: "How was your experience with Triple Strength Omega-3 Fish Oil?",
     time: "Yesterday, 05:46 PM",
     icon: "star-outline",
     unread: false,
@@ -86,8 +86,7 @@ const INITIAL_NOTIFICATIONS = [
     section: "This Week",
     type: "Offers",
     title: "Refer & Earn",
-    message:
-      "Invite your friends to NATURYZ and get ₹200 worth of rewards!",
+    message: "Invite your friends to NATURYZ and get ₹200 worth of rewards!",
     time: "Sun, 26 Oct, 04:30 PM",
     icon: "gift-outline",
     unread: false,
@@ -110,9 +109,7 @@ export default function NotificationsScreen({
   cartCount = 0,
 }) {
   const [activeFilter, setActiveFilter] = useState("All");
-  const [notifications, setNotifications] = useState(
-    INITIAL_NOTIFICATIONS,
-  );
+  const [notifications, setNotifications] = useState(INITIAL_NOTIFICATIONS);
   const [settingsVisible, setSettingsVisible] = useState(false);
 
   const [settings, setSettings] = useState({
@@ -126,16 +123,12 @@ export default function NotificationsScreen({
   const filteredNotifications = useMemo(() => {
     if (activeFilter === "All") return notifications;
 
-    return notifications.filter(
-      (item) => item.type === activeFilter,
-    );
+    return notifications.filter((item) => item.type === activeFilter);
   }, [activeFilter, notifications]);
 
   const sections = ["Today", "Yesterday", "This Week"];
 
-  const unreadCount = notifications.filter(
-    (item) => item.unread,
-  ).length;
+  const unreadCount = notifications.filter((item) => item.unread).length;
 
   const markAsRead = (id) => {
     setNotifications((previous) =>
@@ -208,11 +201,7 @@ export default function NotificationsScreen({
 
       <View style={styles.notificationRight}>
         {item.unread && <View style={styles.unreadDot} />}
-        <Ionicons
-          name="chevron-forward"
-          size={23}
-          color={TEXT}
-        />
+        <Ionicons name="chevron-forward" size={23} color={TEXT} />
       </View>
     </Pressable>
   );
@@ -222,49 +211,21 @@ export default function NotificationsScreen({
       <StatusBar backgroundColor="#FFFFFF" barStyle="dark-content" />
 
       <View style={styles.container}>
-        {/* HEADER */}
-        <View style={styles.header}>
-          <Pressable
-            style={styles.headerButton}
-            onPress={onBack}
-            accessibilityLabel="Go back"
-          >
-            <Ionicons name="arrow-back" size={29} color={TEXT} />
-          </Pressable>
-
-          <View style={styles.logoContainer}>
-            <Image
-              source={require("../../assets/images/naturyz-home-logo.png")}
-              style={styles.logo}
-              resizeMode="contain"
-            />
-          </View>
-
-          <Pressable
-            style={styles.headerButton}
-            onPress={onWishlistPress}
-            accessibilityLabel="Open wishlist"
-          >
-            <Ionicons name="heart-outline" size={28} color={TEXT} />
-          </Pressable>
-
-          <Pressable
-            style={styles.headerButton}
-            onPress={onCartPress}
-            accessibilityLabel="Open cart"
-          >
-            <View>
-              <Ionicons name="cart-outline" size={30} color={TEXT} />
-              {cartCount > 0 && (
-                <View style={styles.cartBadge}>
-                  <Text style={styles.cartBadgeText}>
-                    {cartCount > 99 ? "99+" : cartCount}
-                  </Text>
-                </View>
-              )}
-            </View>
-          </Pressable>
-        </View>
+        {/* REUSABLE TOP NAVBAR */}
+        <TopNavbar
+          leftAction="back"
+          onLeftPress={onBack}
+          onWishlistPress={onWishlistPress}
+          onCartPress={onCartPress}
+          cartCount={cartCount}
+          showWishlist={true}
+          showCart={true}
+          headerBackgroundColor="#FFFFFF"
+          iconColor={TEXT}
+          headerHeight={62}
+          headerBorderColor="#F4F4F4"
+          headerBorderWidth={1}
+        />
 
         <ScrollView
           style={styles.scroll}
@@ -277,9 +238,7 @@ export default function NotificationsScreen({
               <Text style={styles.pageTitle}>Notifications</Text>
               {unreadCount > 0 && (
                 <View style={styles.unreadCountBadge}>
-                  <Text style={styles.unreadCountText}>
-                    {unreadCount} New
-                  </Text>
+                  <Text style={styles.unreadCountText}>{unreadCount} New</Text>
                 </View>
               )}
             </View>
@@ -351,7 +310,8 @@ export default function NotificationsScreen({
               />
               <Text style={styles.emptyTitle}>No Notifications</Text>
               <Text style={styles.emptyMessage}>
-                There are no {activeFilter.toLowerCase()} notifications right now.
+                There are no {activeFilter.toLowerCase()} notifications right
+                now.
               </Text>
             </View>
           )}
@@ -366,9 +326,7 @@ export default function NotificationsScreen({
               size={27}
               color={DARK_GREEN}
             />
-            <Text style={styles.settingsButtonText}>
-              Notification Settings
-            </Text>
+            <Text style={styles.settingsButtonText}>Notification Settings</Text>
           </Pressable>
         </ScrollView>
 
@@ -383,9 +341,7 @@ export default function NotificationsScreen({
             <View style={styles.settingsModal}>
               <View style={styles.modalHeader}>
                 <View>
-                  <Text style={styles.modalTitle}>
-                    Notification Settings
-                  </Text>
+                  <Text style={styles.modalTitle}>Notification Settings</Text>
                   <Text style={styles.modalSubtitle}>
                     Choose what you want to receive.
                   </Text>
@@ -441,9 +397,7 @@ export default function NotificationsScreen({
                       false: "#D5D5D5",
                       true: "#B6D77A",
                     }}
-                    thumbColor={
-                      settings[item.key] ? GREEN : "#F4F4F4"
-                    }
+                    thumbColor={settings[item.key] ? GREEN : "#F4F4F4"}
                   />
                 </View>
               ))}
@@ -470,49 +424,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#FFFFFF",
-  },
-  header: {
-    height: 62,
-    paddingHorizontal: 9,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    borderBottomWidth: 1,
-    borderBottomColor: "#F4F4F4",
-  },
-  headerButton: {
-    width: 37,
-    height: 45,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  logoContainer: {
-    flex: 1,
-    height: 53,
-    marginHorizontal: 5,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  logo: {
-    width: "100%",
-    height: "100%",
-  },
-  cartBadge: {
-    position: "absolute",
-    top: -6,
-    right: -7,
-    minWidth: 19,
-    height: 19,
-    borderRadius: 10,
-    backgroundColor: GREEN,
-    paddingHorizontal: 4,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  cartBadgeText: {
-    color: "#FFFFFF",
-    fontSize: 10,
-    fontWeight: "800",
   },
   scroll: {
     flex: 1,

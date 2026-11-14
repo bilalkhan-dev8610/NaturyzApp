@@ -14,6 +14,8 @@ import {
 
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
+import BottomTabBar from "../components/BottomTabBar";
+import TopNavbar from "../components/TopNavbar";
 
 const GREEN = "#83AE12";
 const DARK_GREEN = "#56880B";
@@ -69,13 +71,7 @@ const categories = [
   },
 ];
 
-const tabs = [
-  { label: "Home", icon: "home-outline", activeIcon: "home" },
-  { label: "Categories", icon: "grid-outline", activeIcon: "grid" },
-  { label: "Search", icon: "search-outline", activeIcon: "search" },
-  { label: "Orders", icon: "cube-outline", activeIcon: "cube" },
-  { label: "Profile", icon: "person-outline", activeIcon: "person" },
-];
+
 
 export default function CategoriesScreen({
   onBack,
@@ -127,68 +123,19 @@ export default function CategoriesScreen({
 
       <View style={styles.container}>
 
-        {/* HEADER */}
-        <View style={styles.header}>
-          <Pressable
-            onPress={onBack || (() => handleTabPress("Home"))}
-            style={styles.headerButton}
-            hitSlop={8}
-          >
-            <Ionicons
-              name="arrow-back"
-              size={29}
-              color="#111111"
-            />
-          </Pressable>
-
-          <View style={styles.logoContainer}>
-            <Image
-              source={require("../../assets/images/naturyz-home-logo.png")}
-              style={styles.logo}
-              resizeMode="contain"
-            />
-          </View>
-
-          <Pressable
-            onPress={
-              onWishlistPress ||
-              (() => showMessage("Wishlist will be connected soon."))
-            }
-            style={styles.headerButton}
-            hitSlop={8}
-          >
-            <Ionicons
-              name="heart-outline"
-              size={29}
-              color="#111111"
-            />
-          </Pressable>
-
-          <Pressable
-            onPress={
-              onCartPress ||
-              (() => showMessage("Cart will be connected soon."))
-            }
-            style={styles.headerButton}
-            hitSlop={8}
-          >
-            <View>
-              <Ionicons
-                name="cart-outline"
-                size={31}
-                color="#111111"
-              />
-
-              {cartCount > 0 && (
-                <View style={styles.cartBadge}>
-                  <Text style={styles.cartBadgeText}>
-                    {cartCount}
-                  </Text>
-                </View>
-              )}
-            </View>
-          </Pressable>
-        </View>
+       {/* REUSABLE TOP NAVBAR */}
+<TopNavbar
+ leftAction="none"
+  onWishlistPress={
+    onWishlistPress ||
+    (() => showMessage("Wishlist will be connected soon."))
+  }
+  onCartPress={
+    onCartPress ||
+    (() => showMessage("Cart will be connected soon."))
+  }
+  cartCount={cartCount}
+/>
 
         {/* SCROLLABLE CONTENT */}
         <ScrollView
@@ -277,44 +224,11 @@ export default function CategoriesScreen({
           <View style={styles.bottomSpace} />
         </ScrollView>
 
-        {/* FIXED BOTTOM NAVIGATION */}
-        <View style={styles.bottomNavigation}>
-          {tabs.map((tab) => {
-            const isActive = tab.label === "Categories";
-
-            return (
-              <Pressable
-                key={tab.label}
-                onPress={() => handleTabPress(tab.label)}
-                style={styles.tabItem}
-              >
-                <View
-                  style={[
-                    styles.tabIconContainer,
-                    isActive && styles.activeTabContainer,
-                  ]}
-                >
-                  <Ionicons
-                    name={isActive ? tab.activeIcon : tab.icon}
-                    size={27}
-                    color={isActive ? DARK_GREEN : "#111111"}
-                  />
-
-                  
-                </View>
-
-                <Text
-                  style={[
-                    styles.tabLabel,
-                    isActive && styles.activeTabLabel,
-                  ]}
-                >
-                  {tab.label}
-                </Text>
-              </Pressable>
-            );
-          })}
-        </View>
+       {/* REUSABLE BOTTOM NAVIGATION */}
+<BottomTabBar
+  activeTab="Categories"
+  onTabPress={handleTabPress}
+/>
       </View>
     </SafeAreaView>
   );
@@ -332,53 +246,6 @@ const styles = StyleSheet.create({
   },
 
   /* HEADER */
-
-  header: {
-    height: 76,
-    paddingHorizontal: 14,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    backgroundColor: "#FFFFFF",
-  },
-
-  headerButton: {
-    width: 39,
-    height: 48,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-
-  logoContainer: {
-    flex: 1,
-    height: 61,
-    marginHorizontal: 6,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-
-  logo: {
-    width: "100%",
-    height: "100%",
-  },
-
-  cartBadge: {
-    position: "absolute",
-    top: -6,
-    right: -7,
-    width: 21,
-    height: 21,
-    borderRadius: 11,
-    backgroundColor: GREEN,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-
-  cartBadgeText: {
-    color: "#FFFFFF",
-    fontSize: 11,
-    fontWeight: "800",
-  },
 
   /* SCROLL CONTENT */
 
@@ -510,65 +377,4 @@ const styles = StyleSheet.create({
     height: 15,
   },
 
-  /* BOTTOM NAVIGATION */
-
-  bottomNavigation: {
-    height: 75,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-around",
-    backgroundColor: "#FFFFFF",
-    borderTopWidth: 1,
-    borderTopColor: "#EEEEEE",
-    paddingHorizontal: 5,
-    elevation: 10,
-    shadowColor: "#000000",
-    shadowOffset: { width: 0, height: -3 },
-    shadowOpacity: 0.07,
-    shadowRadius: 5,
-  },
-
-  tabItem: {
-    flex: 1,
-    height: "100%",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-
-  tabIconContainer: {
-    width: 57,
-    height: 37,
-    borderRadius: 22,
-    alignItems: "center",
-    justifyContent: "center",
-    position: "relative",
-  },
-
-  activeTabContainer: {
-    backgroundColor: "#F0F6DE",
-  },
-
-  tabLabel: {
-    color: "#171717",
-    fontSize: 11,
-    fontWeight: "500",
-    marginTop: 2,
-  },
-
-  activeTabLabel: {
-    color: DARK_GREEN,
-    fontWeight: "800",
-  },
-
-  tabCartBadge: {
-    position: "absolute",
-    right: 1,
-    top: -4,
-    width: 18,
-    height: 18,
-    borderRadius: 10,
-    backgroundColor: GREEN,
-    alignItems: "center",
-    justifyContent: "center",
-  },
 });

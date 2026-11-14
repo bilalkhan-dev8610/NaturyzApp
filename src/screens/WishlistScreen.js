@@ -1,4 +1,3 @@
-
 import React from "react";
 import {
   View,
@@ -11,6 +10,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
+import TopNavbar from "../components/TopNavbar";
 
 const GREEN = "#83AE12";
 const DARK_GREEN = "#56880B";
@@ -33,11 +33,9 @@ export default function WishlistScreen({
   onCartPress,
   cartCount = 0,
 }) {
-  const getItemPrice = (item) =>
-    item.selectedPrice ?? item.price;
+  const getItemPrice = (item) => item.selectedPrice ?? item.price;
 
-  const getItemMrp = (item) =>
-    item.selectedMrp ?? item.mrp;
+  const getItemMrp = (item) => item.selectedMrp ?? item.mrp;
 
   const getDiscount = (item) => {
     const price = Number(getItemPrice(item));
@@ -67,49 +65,20 @@ export default function WishlistScreen({
       <StatusBar backgroundColor="#FFFFFF" barStyle="dark-content" />
 
       <View style={styles.container}>
-        {/* HEADER */}
-        <View style={styles.header}>
-          <Pressable
-            onPress={onBack}
-            style={styles.headerButton}
-            hitSlop={8}
-            accessibilityLabel="Go back"
-          >
-            <Ionicons name="arrow-back" size={26} color={TEXT} />
-          </Pressable>
-
-          <View style={styles.logoContainer}>
-            <Image
-              source={require("../../assets/images/naturyz-home-logo.png")}
-              style={styles.logo}
-              resizeMode="contain"
-            />
-          </View>
-
-          <View style={styles.headerActions}>
-            <Pressable
-              style={styles.headerButton}
-              accessibilityLabel="Search"
-            >
-              <Ionicons name="search-outline" size={23} color={TEXT} />
-            </Pressable>
-
-            <Pressable
-              onPress={onCartPress}
-              style={styles.headerButton}
-              accessibilityLabel="Open cart"
-            >
-              <Ionicons name="cart-outline" size={25} color={TEXT} />
-              {cartCount > 0 && (
-                <View style={styles.cartBadge}>
-                  <Text style={styles.cartBadgeText}>
-                    {cartCount > 99 ? "99+" : cartCount}
-                  </Text>
-                </View>
-              )}
-            </Pressable>
-          </View>
-        </View>
+        {/* REUSABLE TOP NAVBAR */}
+        <TopNavbar
+          leftAction="back"
+          onLeftPress={onBack}
+          onCartPress={onCartPress}
+          cartCount={cartCount}
+          showWishlist={false}
+          showCart={true}
+          headerBackgroundColor="#FFFFFF"
+          iconColor={TEXT}
+          headerHeight={66}
+          headerBorderColor="#F0F0F0"
+          headerBorderWidth={1}
+        />
 
         <ScrollView
           showsVerticalScrollIndicator={false}
@@ -170,16 +139,15 @@ export default function WishlistScreen({
                           hitSlop={8}
                           accessibilityLabel={`Remove ${item.name} from wishlist`}
                         >
-                          <Ionicons
-                            name="heart"
-                            size={22}
-                            color={GREEN}
-                          />
+                          <Ionicons name="heart" size={22} color={GREEN} />
                         </Pressable>
                       </View>
 
                       <Text style={styles.variant} numberOfLines={1}>
-                        {[item.selectedWeight || item.size, item.selectedFlavor || item.flavour]
+                        {[
+                          item.selectedWeight || item.size,
+                          item.selectedFlavor || item.flavour,
+                        ]
                           .filter(Boolean)
                           .join("  |  ") || "NATURYZ"}
                       </Text>
@@ -192,27 +160,22 @@ export default function WishlistScreen({
                           </Text>
                           {item.reviews != null && (
                             <Text style={styles.reviewText}>
-                              ({Number(item.reviews).toLocaleString("en-IN")} Reviews)
+                              ({Number(item.reviews).toLocaleString("en-IN")}{" "}
+                              Reviews)
                             </Text>
                           )}
                         </View>
                       )}
 
                       <View style={styles.priceRow}>
-                        <Text style={styles.price}>
-                          {formatPrice(price)}
-                        </Text>
+                        <Text style={styles.price}>{formatPrice(price)}</Text>
 
                         {mrp != null && Number(mrp) > Number(price) && (
-                          <Text style={styles.mrp}>
-                            {formatPrice(mrp)}
-                          </Text>
+                          <Text style={styles.mrp}>{formatPrice(mrp)}</Text>
                         )}
 
                         {discount > 0 && (
-                          <Text style={styles.discount}>
-                            {discount}% Off
-                          </Text>
+                          <Text style={styles.discount}>{discount}% Off</Text>
                         )}
                       </View>
 
@@ -242,8 +205,8 @@ export default function WishlistScreen({
               </View>
               <Text style={styles.emptyTitle}>Your Wishlist is Empty</Text>
               <Text style={styles.emptyDescription}>
-                Save your favourite NATURYZ products here and find them
-                whenever you need them.
+                Save your favourite NATURYZ products here and find them whenever
+                you need them.
               </Text>
               <Pressable onPress={onBack} style={styles.shopButton}>
                 <Text style={styles.shopButtonText}>Continue Shopping</Text>
@@ -277,52 +240,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#FFFFFF",
-  },
-  header: {
-    minHeight: 66,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 14,
-    borderBottomWidth: 1,
-    borderBottomColor: "#F0F0F0",
-  },
-  headerButton: {
-    width: 38,
-    height: 42,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  logoContainer: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  logo: {
-    width: 145,
-    height: 48,
-  },
-  headerActions: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 5,
-  },
-  cartBadge: {
-    position: "absolute",
-    top: 0,
-    right: -3,
-    minWidth: 17,
-    height: 17,
-    borderRadius: 9,
-    backgroundColor: GREEN,
-    alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: 3,
-  },
-  cartBadgeText: {
-    color: "#FFFFFF",
-    fontSize: 9,
-    fontWeight: "700",
   },
   scrollContent: {
     paddingHorizontal: 15,

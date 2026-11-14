@@ -13,6 +13,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
+import TopNavbar from "../components/TopNavbar";
 
 const GREEN = "#80AD08";
 const DARK_GREEN = "#568600";
@@ -333,49 +334,21 @@ export default function CartScreen({
       <StatusBar backgroundColor="#FFFFFF" barStyle="dark-content" />
 
       <View style={styles.container}>
-        {/* HEADER */}
-        <View style={styles.header}>
-          <Pressable
-            onPress={onBack}
-            style={styles.headerButton}
-            accessibilityLabel="Go back"
-          >
-            <Ionicons name="arrow-back" size={27} color={TEXT} />
-          </Pressable>
-
-          <View style={styles.logoContainer}>
-            <Image
-              source={require("../../assets/images/naturyz-home-logo.png")}
-              style={styles.logo}
-              resizeMode="contain"
-            />
-          </View>
-
-          <Pressable
-            onPress={onWishlistPress}
-            style={styles.headerButton}
-            accessibilityLabel="Open wishlist"
-          >
-            <Ionicons name="heart-outline" size={27} color={TEXT} />
-          </Pressable>
-
-          <Pressable
-            onPress={onCartPress}
-            style={styles.headerButton}
-            accessibilityLabel="Cart"
-          >
-            <View>
-              <Ionicons name="cart-outline" size={29} color={TEXT} />
-              {items.length > 0 && (
-                <View style={styles.cartBadge}>
-                  <Text style={styles.cartBadgeText}>
-                    {items.length > 99 ? "99+" : items.length}
-                  </Text>
-                </View>
-              )}
-            </View>
-          </Pressable>
-        </View>
+        {/* REUSABLE TOP NAVBAR */}
+<TopNavbar
+  leftAction="back"
+  onLeftPress={onBack}
+  onWishlistPress={onWishlistPress}
+  onCartPress={onCartPress}
+  cartCount={items.length}
+  showWishlist={true}
+  showCart={true}
+  headerBackgroundColor="#FFFFFF"
+  iconColor={TEXT}
+  headerHeight={66}
+  headerBorderColor="#F3F3F3"
+  headerBorderWidth={1}
+/>
 
         {/* EMPTY CART */}
         {items.length === 0 ? (
@@ -627,49 +600,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#FFFFFF",
-  },
-  header: {
-    height: 66,
-    paddingHorizontal: 9,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    borderBottomWidth: 1,
-    borderBottomColor: "#F3F3F3",
-  },
-  headerButton: {
-    width: 38,
-    height: 46,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  logoContainer: {
-    flex: 1,
-    height: 54,
-    marginHorizontal: 5,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  logo: {
-    width: "100%",
-    height: "100%",
-  },
-  cartBadge: {
-    position: "absolute",
-    top: -6,
-    right: -7,
-    minWidth: 19,
-    height: 19,
-    borderRadius: 10,
-    backgroundColor: GREEN,
-    paddingHorizontal: 4,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  cartBadgeText: {
-    color: "#FFFFFF",
-    fontSize: 10,
-    fontWeight: "800",
   },
   scroll: {
     flex: 1,

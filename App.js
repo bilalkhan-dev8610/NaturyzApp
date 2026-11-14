@@ -1,13 +1,17 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, Alert, StatusBar } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Alert,
+  StatusBar,
+  BackHandler,
+} from "react-native";
 
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 // Import all implemented screens
 import SplashScreen from "./src/screens/SplashScreen";
-import OnboardingBrandScreen from "./src/screens/OnboardingBrandScreen";
-import OnboardingQualityScreen from "./src/screens/OnboardingQualityScreen";
-import OnboardingWellnessScreen from "./src/screens/OnboardingWellnessScreen";
 import HomeScreen from "./src/screens/HomeScreen";
 import CategoriesScreen from "./src/screens/CategoriesScreen";
 import SportsNutritionScreen from "./src/screens/SportsNutritionScreen";
@@ -28,6 +32,7 @@ import NotificationsScreen from "./src/screens/NotificationsScreen";
 import AboutNaturyzScreen from "./src/screens/AboutNaturyzScreen";
 import PrivacyTermsScreen from "./src/screens/PrivacyTermsScreen";
 import DrawerMenu from "./src/components/DrawerMenu";
+import OnboardingFlow from "./src/screens/onboarding/OnboardingFlow";
 
 const CREAM = "#FDFFF1";
 
@@ -228,9 +233,7 @@ export default function App() {
   }, []);
 
   // Onboarding Screen 1 -> Screen 2
-  const handleBrandNext = () => {
-    setCurrentScreen("onboardingQuality");
-  };
+
   const handleProfileImageChange = async (uri) => {
     try {
       await AsyncStorage.setItem("@naturyz_profile_image", uri);
@@ -239,19 +242,6 @@ export default function App() {
       Alert.alert("Error", "Unable to save profile photo.");
       console.warn("Profile image saving failed:", error);
     }
-  };
-
-  // Skip onboarding
-  const handleSkip = () => {
-    Alert.alert(
-      "Onboarding",
-      "Home screen abhi development mein hai. Onboarding ke remaining screens complete hone ke baad Home navigation connect hogi.",
-    );
-  };
-
-  // Onboarding Screen 2 -> Screen 3 (not implemented yet)
-  const handleQualityNext = () => {
-    setCurrentScreen("onboardingWellness");
   };
 
   const handleGetStarted = () => {
@@ -278,8 +268,6 @@ export default function App() {
         },
       ];
     });
-
-    Alert.alert("Added to Cart", `${product.name} added to your demo cart.`);
   };
   const openCart = () => {
     setCartReturnScreen(currentScreen);
@@ -400,6 +388,68 @@ export default function App() {
     setSelectedAddressId(addressId);
     setSelectedDeliveryAddress(address || null);
   };
+  const handleDrawerNavigate = (destination) => {
+    switch (destination) {
+      case "home":
+        setCurrentScreen("home");
+        break;
+
+      case "categories":
+        setCurrentScreen("categories");
+        break;
+
+      case "sportsNutrition":
+        setCurrentScreen("sportsNutrition");
+        break;
+
+      case "orders":
+        setCurrentScreen("orders");
+        break;
+
+      case "wishlist":
+        setCurrentScreen("wishlist");
+        break;
+
+      case "cart":
+        openCart();
+        break;
+
+      case "profile":
+        setCurrentScreen("profile");
+        break;
+
+      case "addresses":
+        setAddressReturnScreen("home");
+        setCurrentScreen("addressSelection");
+        break;
+
+      case "notifications":
+        setCurrentScreen("notifications");
+        break;
+
+      case "helpSupport":
+        setCurrentScreen("helpSupport");
+        break;
+
+      case "aboutNaturyz":
+        setCurrentScreen("aboutNaturyz");
+        break;
+
+      case "privacy":
+        setPrivacyTermsInitialTab("privacy");
+        setCurrentScreen("privacyTerms");
+        break;
+
+      case "terms":
+        setPrivacyTermsInitialTab("terms");
+        setCurrentScreen("privacyTerms");
+        break;
+
+      default:
+        console.warn("Unknown drawer destination:", destination);
+        break;
+    }
+  };
   // Render application screens
   const renderScreen = () => {
     switch (currentScreen) {
@@ -407,17 +457,8 @@ export default function App() {
         return <SplashScreen />;
 
       case "onboardingBrand":
-        return (
-          <OnboardingBrandScreen onNext={handleBrandNext} onSkip={handleSkip} />
-        );
+        return <OnboardingFlow onComplete={handleGetStarted} />;
 
-      case "onboardingQuality":
-        return (
-          <OnboardingQualityScreen
-            onNext={handleQualityNext}
-            onSkip={handleSkip}
-          />
-        );
       case "categories":
         return (
           <CategoriesScreen
@@ -444,6 +485,7 @@ export default function App() {
           <SportsNutritionScreen
             onBack={() => setCurrentScreen("categories")}
             cartCount={cartCount}
+            cartItems={cartItems}
             onAddToCart={handleAddToCart}
             wishlistItems={wishlistItems}
             onWishlistToggle={handleWishlistToggle}
@@ -463,6 +505,7 @@ export default function App() {
           <ProductDetailsScreen
             product={selectedProduct}
             cartCount={cartCount}
+            cartItems={cartItems}
             onBack={() => setCurrentScreen(productReturnScreen)}
             onCartPress={openCart}
             onAddToCart={handleAddToCart}
@@ -601,6 +644,7 @@ export default function App() {
             onRemoveFromWishlist={handleRemoveFromWishlist}
             onAddToCart={handleAddToCart}
             onProductPress={(product) => {
+              setProductReturnScreen("wishlist");
               setSelectedProduct(product);
               setCurrentScreen("productDetails");
             }}
@@ -613,6 +657,7 @@ export default function App() {
           <SearchScreen
             onBack={() => setCurrentScreen("home")}
             cartCount={cartCount}
+            cartItems={cartItems}
             onWishlistPress={() => setCurrentScreen("wishlist")}
             onWishlistToggle={handleWishlistToggle}
             wishlistItems={wishlistItems}
@@ -627,13 +672,6 @@ export default function App() {
           />
         );
 
-      case "onboardingWellness":
-        return (
-          <OnboardingWellnessScreen
-            onGetStarted={handleGetStarted}
-            onSkip={handleGetStarted}
-          />
-        );
       case "home":
         return (
           <HomeScreen
@@ -642,6 +680,7 @@ export default function App() {
             cartCount={cartCount}
             onWishlistPress={() => setCurrentScreen("wishlist")}
             onCartPress={openCart}
+            onProductPress={() => setCurrentScreen("sportsNutrition")}
             onCategoryPress={(category) => {
               if (category.id === "sports") {
                 setCurrentScreen("sportsNutrition");
@@ -652,6 +691,8 @@ export default function App() {
                 );
               }
             }}
+            wishlistItems={wishlistItems}
+            onWishlistToggle={handleWishlistToggle}
           />
         );
 
@@ -800,6 +841,114 @@ export default function App() {
 
   const formatINR = (amount) =>
     `₹${Number(amount || 0).toLocaleString("en-IN")}`;
+  // Android Back Gesture / Back Button Handler
+  useEffect(() => {
+    const handleBackPress = () => {
+      // 1. Drawer open hai toh pehle Drawer close karo
+      if (drawerVisible) {
+        setDrawerVisible(false);
+        return true;
+      }
+
+      // 2. Main tabs se Back karne par Home open karo
+      const mainTabs = [
+        "categories",
+        "orders",
+        "search",
+        "profile",
+        "wishlist",
+      ];
+
+      if (mainTabs.includes(currentScreen)) {
+        setCurrentScreen("home");
+        return true;
+      }
+
+      // 3. Current screen ke according previous screen open karo
+      switch (currentScreen) {
+        case "home":
+          Alert.alert("Exit App", "Are you sure you want to exit NATURYZ?", [
+            {
+              text: "Cancel",
+              style: "cancel",
+            },
+            {
+              text: "Exit",
+              style: "destructive",
+              onPress: () => BackHandler.exitApp(),
+            },
+          ]);
+          return true;
+
+        case "sportsNutrition":
+          setCurrentScreen("categories");
+          return true;
+
+        case "productDetails":
+          setCurrentScreen(productReturnScreen);
+          return true;
+
+        case "cart":
+          if (
+            [
+              "home",
+              "categories",
+              "orders",
+              "search",
+              "profile",
+              "wishlist",
+            ].includes(cartReturnScreen)
+          ) {
+            setCurrentScreen("home");
+          } else {
+            setCurrentScreen(cartReturnScreen || "home");
+          }
+          return true;
+
+        case "addressSelection":
+          setCurrentScreen(addressReturnScreen);
+          return true;
+
+        case "addressForm":
+          setEditingAddress(null);
+          setCurrentScreen(addressFormReturnScreen);
+          return true;
+
+        case "selectDeliveryAddress":
+          setCurrentScreen("cart");
+          return true;
+
+        case "payment":
+          setCurrentScreen("selectDeliveryAddress");
+          return true;
+
+        case "editProfile":
+        case "helpSupport":
+        case "notifications":
+        case "aboutNaturyz":
+        case "privacyTerms":
+          setCurrentScreen("profile");
+          return true;
+
+        default:
+          return false;
+      }
+    };
+
+    const subscription = BackHandler.addEventListener(
+      "hardwareBackPress",
+      handleBackPress,
+    );
+
+    return () => subscription.remove();
+  }, [
+    currentScreen,
+    drawerVisible,
+    productReturnScreen,
+    cartReturnScreen,
+    addressReturnScreen,
+    addressFormReturnScreen,
+  ]);
 
   return (
     <SafeAreaProvider>
@@ -811,9 +960,11 @@ export default function App() {
         <DrawerMenu
           visible={drawerVisible}
           onClose={() => setDrawerVisible(false)}
-          onNavigate={(screen) => {
-            setCurrentScreen(screen);
-          }}
+          onNavigate={handleDrawerNavigate}
+          profile={profileData}
+          profileImage={profileImage}
+          cartCount={cartCount}
+          wishlistCount={wishlistItems.length}
         />
       </View>
     </SafeAreaProvider>

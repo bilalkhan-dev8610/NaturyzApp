@@ -5,7 +5,6 @@ import {
   Image,
   ImageBackground,
   ScrollView,
-  TextInput,
   Pressable,
   StyleSheet,
   StatusBar,
@@ -14,6 +13,9 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
+import BottomTabBar from "../components/BottomTabBar";
+import TopNavbar from "../components/TopNavbar";
+import ProductCard from "../components/product/ProductCard";
 
 const GREEN = "#83AE12";
 const DARK_GREEN = "#56880B";
@@ -107,9 +109,10 @@ export default function HomeScreen({
   onProductPress,
   onTabPress,
   cartCount = 0,
+  wishlistItems = [],
+  onWishlistToggle,
 }) {
   const [searchText, setSearchText] = useState("");
-  const [activeTab, setActiveTab] = useState("Home");
   const heroDotWidth = useRef(new Animated.Value(10)).current;
 
   useEffect(() => {
@@ -128,8 +131,6 @@ export default function HomeScreen({
   };
 
   const handleTabPress = (tab) => {
-    setActiveTab(tab);
-
     if (onTabPress) {
       onTabPress(tab);
       return;
@@ -174,84 +175,34 @@ export default function HomeScreen({
       <StatusBar backgroundColor="#FFFFFF" barStyle="dark-content" />
 
       <View style={styles.container}>
-        {/* FIXED HEADER */}
-        <View style={styles.header}>
-          <Pressable
-            style={styles.headerIcon}
-            onPress={() =>
-              onMenuPress
-                ? onMenuPress()
-                : showAction("Menu will be connected soon.")
-            }
-          >
-            <Ionicons name="menu-outline" size={32} color="#111111" />
-          </Pressable>
-
-          <View style={styles.logoWrapper}>
-            <Image
-              source={require("../../assets/images/naturyz-home-logo.png")}
-              style={styles.logo}
-              resizeMode="contain"
-            />
-          </View>
-
-          <Pressable
-            style={styles.headerIcon}
-            onPress={() =>
-              onWishlistPress
-                ? onWishlistPress()
-                : showAction("Wishlist screen will be connected soon.")
-            }
-          >
-            <Ionicons name="heart-outline" size={29} color="#111111" />
-          </Pressable>
-
-          <Pressable
-            style={styles.headerIcon}
-            onPress={() =>
-              onCartPress
-                ? onCartPress()
-                : showAction("Cart screen will be connected soon.")
-            }
-          >
-            <View>
-              <Ionicons name="cart-outline" size={31} color="#111111" />
-
-              {cartCount > 0 && (
-                <View style={styles.cartBadge}>
-                  <Text style={styles.cartBadgeText}>{cartCount}</Text>
-                </View>
-              )}
-            </View>
-          </Pressable>
-        </View>
-
-        {/* SEARCH BAR */}
-        <View style={styles.searchContainer}>
-          <View style={styles.searchBox}>
-            <Pressable onPress={handleSearch}>
-              <Ionicons name="search-outline" size={25} color="#111111" />
-            </Pressable>
-
-            <TextInput
-              value={searchText}
-              onChangeText={setSearchText}
-              placeholder="Search for products, categories..."
-              placeholderTextColor="#929292"
-              style={styles.searchInput}
-              returnKeyType="search"
-              onSubmitEditing={handleSearch}
-            />
-
-            <Pressable
-              onPress={() =>
-                showAction("Voice search will be added in a future update.")
-              }
-            >
-              <Ionicons name="mic-outline" size={27} color="#111111" />
-            </Pressable>
-          </View>
-        </View>
+        {/* REUSABLE TOP NAVBAR */}
+        <TopNavbar
+          logoPosition="center"
+          leftAction="menu"
+          onLeftPress={() =>
+            onMenuPress
+              ? onMenuPress()
+              : showAction("Menu will be connected soon.")
+          }
+          onWishlistPress={() =>
+            onWishlistPress
+              ? onWishlistPress()
+              : showAction("Wishlist screen will be connected soon.")
+          }
+          onCartPress={() =>
+            onCartPress
+              ? onCartPress()
+              : showAction("Cart screen will be connected soon.")
+          }
+          cartCount={cartCount}
+          showSearch={true}
+          searchText={searchText}
+          onSearchTextChange={setSearchText}
+          onSearchSubmit={handleSearch}
+          onVoiceSearchPress={() =>
+            showAction("Voice search will be added in a future update.")
+          }
+        />
 
         {/* SCROLLABLE HOME CONTENT */}
         <ScrollView
@@ -375,85 +326,36 @@ export default function HomeScreen({
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.productList}
           >
-            {products.map((product) => (
-              <Pressable
-                key={product.id}
-                style={({ pressed }) => [
-                  styles.productCard,
-                  pressed && styles.cardPressed,
-                ]}
-                onPress={() => handleProductPress(product)}
-              >
-                <Pressable
-                  style={styles.wishlistButton}
-                  onPress={() =>
-                    showAction(`${product.name} wishlist action selected.`)
-                  }
-                >
-                  <Ionicons name="heart-outline" size={25} color="#111111" />
-                </Pressable>
+            {products.map((product) => {
+              const isWishlisted = wishlistItems.some(
+                (item) => item.id === product.id,
+              );
 
-                <Image
-                  source={product.image}
-                  style={styles.productImage}
-                  resizeMode="contain"
+              return (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  variant="compact"
+                  isWishlisted={isWishlisted}
+                  onPress={handleProductPress}
+                  onWishlistPress={(item) => {
+                    const alreadySaved = wishlistItems.some(
+                      (savedItem) => savedItem.id === item.id,
+                    );
+
+                    onWishlistToggle?.(item, !alreadySaved);
+                  }}
                 />
-
-                <View style={styles.productInfo}>
-                  <Text style={styles.productName}>{product.name}</Text>
-
-                  <Text style={styles.productSubtitle}>{product.subtitle}</Text>
-
-                  <Text style={styles.productPrice}>{product.price}</Text>
-                </View>
-              </Pressable>
-            ))}
+              );
+            })}
           </ScrollView>
 
           <View style={styles.bottomSpace} />
         </ScrollView>
 
         {/* FIXED BOTTOM NAVIGATION */}
-        <View style={styles.bottomNavigation}>
-          {[
-            { label: "Home", icon: "home-outline", activeIcon: "home" },
-            { label: "Categories", icon: "grid-outline", activeIcon: "grid" },
-            { label: "Search", icon: "search-outline", activeIcon: "search" },
-            { label: "Orders", icon: "cube-outline", activeIcon: "cube" },
-            { label: "Profile", icon: "person-outline", activeIcon: "person" },
-          ].map((tab) => {
-            const isActive = activeTab === tab.label;
-
-            return (
-              <Pressable
-                key={tab.label}
-                style={styles.tabItem}
-                onPress={() => handleTabPress(tab.label)}
-              >
-                <View
-                  style={[
-                    styles.tabIconContainer,
-                    isActive && styles.activeTabContainer,
-                  ]}
-                >
-                  <Ionicons
-                    name={isActive ? tab.activeIcon : tab.icon}
-                    size={27}
-                    color={isActive ? DARK_GREEN : "#111111"}
-                  />
-
-                  
-                </View>
-
-                <Text
-                  style={[styles.tabLabel, isActive && styles.activeTabLabel]}
-                >
-                  {tab.label}
-                </Text>
-              </Pressable>
-            );
-          })}
-        </View>
+        {/* REUSABLE BOTTOM NAVIGATION */}
+        <BottomTabBar activeTab="Home" onTabPress={handleTabPress} />
       </View>
     </SafeAreaView>
   );
@@ -468,89 +370,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#FFFFFF",
-  },
-
-  /* HEADER */
-
-  header: {
-    height: 76,
-    paddingHorizontal: 15,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    backgroundColor: "#FFFFFF",
-  },
-
-  headerIcon: {
-    width: 38,
-    height: 48,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-
-  logoWrapper: {
-    flex: 1,
-    height: 62,
-    alignItems: "center",
-    justifyContent: "center",
-    marginHorizontal: 7,
-  },
-
-  logo: {
-    width: "100%",
-    height: "100%",
-  },
-
-  cartBadge: {
-    position: "absolute",
-    right: -7,
-    top: -6,
-    width: 21,
-    height: 21,
-    borderRadius: 11,
-    backgroundColor: GREEN,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-
-  cartBadgeText: {
-    color: "#FFFFFF",
-    fontSize: 11,
-    fontWeight: "800",
-  },
-
-  /* SEARCH */
-
-  searchContainer: {
-    paddingHorizontal: 18,
-    paddingTop: 8,
-    paddingBottom: 13,
-    backgroundColor: "#FFFFFF",
-  },
-
-  searchBox: {
-    height: 53,
-    borderWidth: 1.4,
-    borderColor: "#E2E2E2",
-    borderRadius: 32,
-    paddingHorizontal: 17,
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#FFFFFF",
-    elevation: 1,
-    shadowColor: "#000000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.06,
-    shadowRadius: 3,
-  },
-
-  searchInput: {
-    flex: 1,
-    color: "#252525",
-    fontSize: 14,
-    marginLeft: 12,
-    marginRight: 8,
-    paddingVertical: 0,
   },
 
   /* SCROLL */
@@ -814,64 +633,4 @@ const styles = StyleSheet.create({
   },
 
   /* BOTTOM NAVIGATION */
-
-  bottomNavigation: {
-    height: 75,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-around",
-    backgroundColor: "#FFFFFF",
-    borderTopWidth: 1,
-    borderTopColor: "#EEEEEE",
-    paddingHorizontal: 5,
-    elevation: 10,
-    shadowColor: "#000000",
-    shadowOffset: { width: 0, height: -3 },
-    shadowOpacity: 0.07,
-    shadowRadius: 5,
-  },
-
-  tabItem: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    height: "100%",
-  },
-
-  tabIconContainer: {
-    width: 57,
-    height: 37,
-    borderRadius: 22,
-    alignItems: "center",
-    justifyContent: "center",
-    position: "relative",
-  },
-
-  activeTabContainer: {
-    backgroundColor: "#F0F6DE",
-  },
-
-  tabLabel: {
-    color: "#171717",
-    fontSize: 11,
-    fontWeight: "500",
-    marginTop: 2,
-  },
-
-  activeTabLabel: {
-    color: DARK_GREEN,
-    fontWeight: "800",
-  },
-
-  tabCartBadge: {
-    position: "absolute",
-    right: 1,
-    top: -4,
-    width: 18,
-    height: 18,
-    borderRadius: 10,
-    backgroundColor: GREEN,
-    alignItems: "center",
-    justifyContent: "center",
-  },
 });

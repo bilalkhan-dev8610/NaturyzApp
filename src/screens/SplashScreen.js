@@ -195,8 +195,8 @@ const styles = StyleSheet.create({
   },
 
   logo: {
-    width: "72%",
-    height: "100%",
+    width: "74%",
+    height: "70%",
   },
 
   headingSection: {

@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import {
   View,
   Text,
-  Image,
   ScrollView,
   Pressable,
   StyleSheet,
@@ -10,6 +9,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
+import TopNavbar from "../components/TopNavbar";
 
 const GREEN = "#78A900";
 const DARK_GREEN = "#578800";
@@ -30,7 +30,8 @@ const PRIVACY_SECTIONS = [
   {
     id: "use",
     title: "How We Use Your Information",
-    subtitle: "To process orders, improve services, and personalize your experience.",
+    subtitle:
+      "To process orders, improve services, and personalize your experience.",
     icon: "shield-checkmark-outline",
     details:
       "Information may be used to manage your account, process and deliver orders, respond to support requests, communicate important service updates and improve the app experience.",
@@ -143,49 +144,21 @@ export default function PrivacyTermsScreen({
       <StatusBar backgroundColor="#FFFFFF" barStyle="dark-content" />
 
       <View style={styles.container}>
-        {/* HEADER */}
-        <View style={styles.header}>
-          <Pressable
-            style={styles.headerButton}
-            onPress={onBack}
-            accessibilityLabel="Go back"
-          >
-            <Ionicons name="arrow-back" size={29} color={TEXT} />
-          </Pressable>
-
-          <View style={styles.logoContainer}>
-            <Image
-              source={require("../../assets/images/naturyz-home-logo.png")}
-              style={styles.logo}
-              resizeMode="contain"
-            />
-          </View>
-
-          <Pressable
-            style={styles.headerButton}
-            onPress={onWishlistPress}
-            accessibilityLabel="Open wishlist"
-          >
-            <Ionicons name="heart-outline" size={28} color={TEXT} />
-          </Pressable>
-
-          <Pressable
-            style={styles.headerButton}
-            onPress={onCartPress}
-            accessibilityLabel="Open cart"
-          >
-            <View>
-              <Ionicons name="cart-outline" size={30} color={TEXT} />
-              {cartCount > 0 && (
-                <View style={styles.cartBadge}>
-                  <Text style={styles.cartBadgeText}>
-                    {cartCount > 99 ? "99+" : cartCount}
-                  </Text>
-                </View>
-              )}
-            </View>
-          </Pressable>
-        </View>
+        {/* REUSABLE TOP NAVBAR */}
+        <TopNavbar
+          leftAction="back"
+          onLeftPress={onBack}
+          onWishlistPress={onWishlistPress}
+          onCartPress={onCartPress}
+          cartCount={cartCount}
+          showWishlist={true}
+          showCart={true}
+          headerBackgroundColor="#FFFFFF"
+          iconColor={TEXT}
+          headerHeight={62}
+          headerBorderColor="#F4F4F4"
+          headerBorderWidth={1}
+        />
 
         <ScrollView
           style={styles.scroll}
@@ -194,9 +167,7 @@ export default function PrivacyTermsScreen({
         >
           {/* TITLE */}
           <View style={styles.titleSection}>
-            <Text style={styles.pageTitle}>
-              Privacy Policy & Terms
-            </Text>
+            <Text style={styles.pageTitle}>Privacy Policy & Terms</Text>
             <Text style={styles.pageSubtitle}>
               Your privacy and trust are important to us.
             </Text>
@@ -207,8 +178,7 @@ export default function PrivacyTermsScreen({
             <View style={styles.heroCopy}>
               <Text style={styles.heroTitle}>Privacy & Terms</Text>
               <Text style={styles.heroSubtitle}>
-                Transparent policies for a safe and trusted shopping
-                experience.
+                Transparent policies for a safe and trusted shopping experience.
               </Text>
               <View style={styles.heroUnderline} />
             </View>
@@ -218,17 +188,9 @@ export default function PrivacyTermsScreen({
                 <Ionicons name="leaf" size={65} color="#DDECC5" />
               </View>
               <View style={styles.shieldCircle}>
-                <Ionicons
-                  name="shield-checkmark"
-                  size={91}
-                  color={GREEN}
-                />
+                <Ionicons name="shield-checkmark" size={91} color={GREEN} />
                 <View style={styles.lockOverlay}>
-                  <Ionicons
-                    name="lock-closed"
-                    size={34}
-                    color="#FFFFFF"
-                  />
+                  <Ionicons name="lock-closed" size={34} color="#FFFFFF" />
                 </View>
               </View>
             </View>
@@ -237,10 +199,7 @@ export default function PrivacyTermsScreen({
           {/* TABS */}
           <View style={styles.tabContainer}>
             <Pressable
-              style={[
-                styles.tabButton,
-                isPrivacy && styles.activeTabButton,
-              ]}
+              style={[styles.tabButton, isPrivacy && styles.activeTabButton]}
               onPress={() => selectTab("privacy")}
             >
               <Ionicons
@@ -248,21 +207,13 @@ export default function PrivacyTermsScreen({
                 size={22}
                 color={isPrivacy ? "#FFFFFF" : GREEN}
               />
-              <Text
-                style={[
-                  styles.tabText,
-                  isPrivacy && styles.activeTabText,
-                ]}
-              >
+              <Text style={[styles.tabText, isPrivacy && styles.activeTabText]}>
                 Privacy Policy
               </Text>
             </Pressable>
 
             <Pressable
-              style={[
-                styles.tabButton,
-                !isPrivacy && styles.activeTabButton,
-              ]}
+              style={[styles.tabButton, !isPrivacy && styles.activeTabButton]}
               onPress={() => selectTab("terms")}
             >
               <Ionicons
@@ -271,10 +222,7 @@ export default function PrivacyTermsScreen({
                 color={!isPrivacy ? "#FFFFFF" : GREEN}
               />
               <Text
-                style={[
-                  styles.tabText,
-                  !isPrivacy && styles.activeTabText,
-                ]}
+                style={[styles.tabText, !isPrivacy && styles.activeTabText]}
               >
                 Terms & Conditions
               </Text>
@@ -287,9 +235,7 @@ export default function PrivacyTermsScreen({
               {isPrivacy ? "Privacy Policy" : "Terms & Conditions"}
             </Text>
 
-            <Text style={styles.updatedDate}>
-              Last Updated: 27 Oct 2026
-            </Text>
+            <Text style={styles.updatedDate}>Last Updated: 27 Oct 2026</Text>
 
             <Text style={styles.introText}>
               {isPrivacy
@@ -305,23 +251,15 @@ export default function PrivacyTermsScreen({
                   <Pressable
                     style={styles.sectionRow}
                     onPress={() =>
-                      setExpandedSection(
-                        expanded ? null : section.id,
-                      )
+                      setExpandedSection(expanded ? null : section.id)
                     }
                   >
                     <View style={styles.sectionIconBox}>
-                      <Ionicons
-                        name={section.icon}
-                        size={34}
-                        color={GREEN}
-                      />
+                      <Ionicons name={section.icon} size={34} color={GREEN} />
                     </View>
 
                     <View style={styles.sectionText}>
-                      <Text style={styles.sectionTitle}>
-                        {section.title}
-                      </Text>
+                      <Text style={styles.sectionTitle}>{section.title}</Text>
                       <Text style={styles.sectionSubtitle}>
                         {section.subtitle}
                       </Text>
@@ -335,9 +273,7 @@ export default function PrivacyTermsScreen({
                   </Pressable>
 
                   {expanded && (
-                    <Text style={styles.sectionDetails}>
-                      {section.details}
-                    </Text>
+                    <Text style={styles.sectionDetails}>{section.details}</Text>
                   )}
                 </View>
               );
@@ -351,8 +287,8 @@ export default function PrivacyTermsScreen({
                 color={GREEN}
               />
               <Text style={styles.infoNoteText}>
-                By using the NATURYZ app, you agree to our Privacy Policy
-                and Terms & Conditions.
+                By using the NATURYZ app, you agree to our Privacy Policy and
+                Terms & Conditions.
               </Text>
             </View>
           </View>
@@ -362,15 +298,9 @@ export default function PrivacyTermsScreen({
             style={styles.readButton}
             onPress={() => selectTab(isPrivacy ? "terms" : "privacy")}
           >
-            <Ionicons
-              name="open-outline"
-              size={26}
-              color={DARK_GREEN}
-            />
+            <Ionicons name="open-outline" size={26} color={DARK_GREEN} />
             <Text style={styles.readButtonText}>
-              {isPrivacy
-                ? "Read Terms & Conditions"
-                : "Read Privacy Policy"}
+              {isPrivacy ? "Read Terms & Conditions" : "Read Privacy Policy"}
             </Text>
           </Pressable>
         </ScrollView>
@@ -388,49 +318,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#FFFFFF",
   },
-  header: {
-    height: 62,
-    paddingHorizontal: 9,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    borderBottomWidth: 1,
-    borderBottomColor: "#F4F4F4",
-  },
-  headerButton: {
-    width: 37,
-    height: 45,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  logoContainer: {
-    flex: 1,
-    height: 53,
-    marginHorizontal: 5,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  logo: {
-    width: "100%",
-    height: "100%",
-  },
-  cartBadge: {
-    position: "absolute",
-    top: -6,
-    right: -7,
-    minWidth: 19,
-    height: 19,
-    borderRadius: 10,
-    backgroundColor: GREEN,
-    paddingHorizontal: 4,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  cartBadgeText: {
-    color: "#FFFFFF",
-    fontSize: 10,
-    fontWeight: "800",
-  },
+
   scroll: {
     flex: 1,
   },

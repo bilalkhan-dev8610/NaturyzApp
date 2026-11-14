@@ -13,6 +13,8 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { ordersData } from "../data/ordersData";
+import BottomTabBar from "../components/BottomTabBar";
+import TopNavbar from "../components/TopNavbar";
 
 const GREEN = "#78A900";
 const DARK_GREEN = "#397D18";
@@ -29,8 +31,7 @@ const FILTERS = [
   "Cancelled",
 ];
 
-const formatINR = (value) =>
-  `₹${Number(value).toLocaleString("en-IN")}`;
+const formatINR = (value) => `₹${Number(value).toLocaleString("en-IN")}`;
 
 const getStatusStyle = (status) => {
   if (status === "Cancelled") {
@@ -86,9 +87,7 @@ export default function OrdersScreen({
   const filteredOrders = useMemo(() => {
     if (activeFilter === "All Orders") return ordersData;
 
-    return ordersData.filter(
-      (order) => order.statusGroup === activeFilter
-    );
+    return ordersData.filter((order) => order.statusGroup === activeFilter);
   }, [activeFilter]);
 
   const handleOrderPress = (order) => {
@@ -99,7 +98,7 @@ export default function OrdersScreen({
 
     Alert.alert(
       `Order #${order.id}`,
-      `Status: ${order.status}\nTotal: ${formatINR(order.total)}\n\nOrder tracking will be connected in the tracking screen.`
+      `Status: ${order.status}\nTotal: ${formatINR(order.total)}\n\nOrder tracking will be connected in the tracking screen.`,
     );
   };
 
@@ -111,8 +110,29 @@ export default function OrdersScreen({
 
     Alert.alert(
       "Order Support",
-      "Support screen will be connected in the Help & Support phase."
+      "Support screen will be connected in the Help & Support phase.",
     );
+  };
+  const handleTabPress = (tab) => {
+    switch (tab) {
+      case "Home":
+        onHomePress?.();
+        break;
+      case "Categories":
+        onCategoriesPress?.();
+        break;
+      case "Search":
+        onSearchPress?.();
+        break;
+      case "Orders":
+        onOrdersPress?.();
+        break;
+      case "Profile":
+        onProfilePress?.();
+        break;
+      default:
+        break;
+    }
   };
 
   const renderOrder = (order) => {
@@ -134,11 +154,7 @@ export default function OrdersScreen({
         {/* ORDER HEADER */}
         <View style={styles.orderHeader}>
           <View style={styles.orderIconCircle}>
-            <Ionicons
-              name="cube-outline"
-              size={27}
-              color={DARK_GREEN}
-            />
+            <Ionicons name="cube-outline" size={27} color={DARK_GREEN} />
           </View>
 
           <View style={styles.orderHeading}>
@@ -161,12 +177,7 @@ export default function OrdersScreen({
               size={23}
               color={statusStyle.color}
             />
-            <Text
-              style={[
-                styles.statusText,
-                { color: statusStyle.color },
-              ]}
-            >
+            <Text style={[styles.statusText, { color: statusStyle.color }]}>
               {order.status}
             </Text>
           </View>
@@ -198,9 +209,7 @@ export default function OrdersScreen({
           <View style={styles.verticalDivider} />
 
           <View style={styles.deliveryInfo}>
-            <Text
-              style={[styles.deliveryLabel, { color: colors.muted }]}
-            >
+            <Text style={[styles.deliveryLabel, { color: colors.muted }]}>
               {order.deliveryLabel}
             </Text>
             <Text
@@ -208,9 +217,7 @@ export default function OrdersScreen({
                 styles.deliveryDate,
                 {
                   color:
-                    order.status === "Cancelled"
-                      ? colors.muted
-                      : DARK_GREEN,
+                    order.status === "Cancelled" ? colors.muted : DARK_GREEN,
                 },
               ]}
             >
@@ -218,11 +225,7 @@ export default function OrdersScreen({
             </Text>
           </View>
 
-          <Ionicons
-            name="chevron-forward"
-            size={23}
-            color={colors.text}
-          />
+          <Ionicons name="chevron-forward" size={23} color={colors.text} />
         </View>
       </Pressable>
     );
@@ -239,53 +242,15 @@ export default function OrdersScreen({
       />
 
       <View style={styles.container}>
-        {/* HEADER */}
-        <View style={styles.header}>
-          <View style={styles.headerSide}>
-            {onBack && (
-              <Pressable
-                onPress={onBack}
-                style={styles.headerIconButton}
-                accessibilityLabel="Go back"
-              >
-                <Ionicons name="arrow-back" size={27} color={colors.text} />
-              </Pressable>
-            )}
-          </View>
-
-          <View style={styles.logoWrap}>
-            <Image
-              source={require("../../assets/images/naturyz-home-logo.png")}
-              style={styles.logo}
-              resizeMode="contain"
-            />
-          </View>
-
-          <Pressable
-            onPress={onWishlistPress}
-            style={styles.headerIconButton}
-            accessibilityLabel="Open wishlist"
-          >
-            <Ionicons name="heart-outline" size={28} color={colors.text} />
-          </Pressable>
-
-          <Pressable
-            onPress={onCartPress}
-            style={styles.headerIconButton}
-            accessibilityLabel="Open cart"
-          >
-            <View>
-              <Ionicons name="cart-outline" size={29} color={colors.text} />
-              {cartCount > 0 && (
-                <View style={styles.cartBadge}>
-                  <Text style={styles.cartBadgeText}>
-                    {cartCount > 99 ? "99+" : cartCount}
-                  </Text>
-                </View>
-              )}
-            </View>
-          </Pressable>
-        </View>
+        {/* REUSABLE TOP NAVBAR */}
+        <TopNavbar
+          leftAction="none"
+          onWishlistPress={onWishlistPress}
+          onCartPress={onCartPress}
+          cartCount={cartCount}
+          headerBackgroundColor={colors.background}
+          iconColor={colors.text}
+        />
 
         <ScrollView
           style={styles.scroll}
@@ -319,12 +284,8 @@ export default function OrdersScreen({
                   style={[
                     styles.filterChip,
                     {
-                      backgroundColor: active
-                        ? colors.green
-                        : colors.surface,
-                      borderColor: active
-                        ? colors.green
-                        : colors.border,
+                      backgroundColor: active ? colors.green : colors.surface,
+                      borderColor: active ? colors.green : colors.border,
                     },
                   ]}
                 >
@@ -363,17 +324,8 @@ export default function OrdersScreen({
           </View>
 
           {/* SUPPORT CARD */}
-          <View
-            style={[
-              styles.supportCard,
-              { backgroundColor: colors.pale },
-            ]}
-          >
-            <Ionicons
-              name="headset-outline"
-              size={43}
-              color={DARK_GREEN}
-            />
+          <View style={[styles.supportCard, { backgroundColor: colors.pale }]}>
+            <Ionicons name="headset-outline" size={43} color={DARK_GREEN} />
 
             <View style={styles.supportText}>
               <Text style={[styles.supportTitle, { color: colors.text }]}>
@@ -384,87 +336,16 @@ export default function OrdersScreen({
               </Text>
             </View>
 
-            <Pressable
-              onPress={handleSupport}
-              style={styles.supportButton}
-            >
+            <Pressable onPress={handleSupport} style={styles.supportButton}>
               <Text style={styles.supportButtonText}>Contact Support</Text>
             </Pressable>
           </View>
         </ScrollView>
 
-        {/* BOTTOM NAVIGATION */}
-        <View
-          style={[
-            styles.bottomNav,
-            {
-              backgroundColor: colors.surface,
-              borderTopColor: colors.border,
-            },
-          ]}
-        >
-          <NavItem
-            icon="home-outline"
-            label="Home"
-            onPress={onHomePress}
-            color={colors.text}
-          />
-          <NavItem
-            icon="grid-outline"
-            label="Categories"
-            onPress={onCategoriesPress}
-            color={colors.text}
-          />
-          <NavItem
-            icon="search-outline"
-            label="Search"
-            onPress={onSearchPress}
-            color={colors.text}
-          />
-          <NavItem
-            icon="cube-outline"
-            label="Orders"
-            active
-            onPress={onOrdersPress}
-            color={colors.green}
-          />
-          <NavItem
-            icon="person-outline"
-            label="Profile"
-            onPress={onProfilePress}
-            color={colors.text}
-          />
-        </View>
+        {/* REUSABLE BOTTOM NAVIGATION */}
+        <BottomTabBar activeTab="Orders" onTabPress={handleTabPress} />
       </View>
     </SafeAreaView>
-  );
-}
-
-function NavItem({ icon, label, onPress, active, color }) {
-  return (
-    <Pressable
-      onPress={onPress}
-      style={styles.navItem}
-      accessibilityRole="button"
-      accessibilityLabel={label}
-    >
-      <View style={[styles.navIconWrap, active && styles.activeNavIconWrap]}>
-        <Ionicons
-          name={active ? "cube" : icon}
-          size={29}
-          color={active ? color : color}
-        />
-      </View>
-      <Text
-        style={[
-          styles.navLabel,
-          { color },
-          active && styles.activeNavLabel,
-        ]}
-      >
-        {label}
-      </Text>
-    </Pressable>
   );
 }
 
@@ -474,52 +355,6 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-  },
-  header: {
-    height: 70,
-    paddingHorizontal: 13,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    borderBottomWidth: 1,
-    borderBottomColor: "#F3F3F3",
-  },
-  headerSide: {
-    width: 28,
-  },
-  headerIconButton: {
-    width: 39,
-    height: 45,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  logoWrap: {
-    flex: 1,
-    height: 58,
-    marginHorizontal: 8,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  logo: {
-    width: "100%",
-    height: "100%",
-  },
-  cartBadge: {
-    position: "absolute",
-    top: -6,
-    right: -7,
-    minWidth: 19,
-    height: 19,
-    borderRadius: 10,
-    backgroundColor: GREEN,
-    alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: 3,
-  },
-  cartBadgeText: {
-    color: "#FFFFFF",
-    fontSize: 10,
-    fontWeight: "900",
   },
   scroll: {
     flex: 1,
@@ -733,46 +568,5 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontSize: 12,
     marginTop: 6,
-  },
-  bottomNav: {
-    minHeight: 76,
-    paddingHorizontal: 5,
-    paddingTop: 7,
-    paddingBottom: 4,
-    borderTopWidth: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-around",
-    elevation: 12,
-    shadowColor: "#000",
-    shadowOpacity: 0.06,
-    shadowRadius: 6,
-    shadowOffset: { width: 0, height: -3 },
-  },
-  navItem: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    minHeight: 61,
-  },
-  navIconWrap: {
-    width: 48,
-    height: 34,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  activeNavIconWrap: {
-    borderTopWidth: 3,
-    borderTopColor: GREEN,
-    marginTop: -8,
-    paddingTop: 5,
-  },
-  navLabel: {
-    fontSize: 11,
-    fontWeight: "500",
-    marginTop: 3,
-  },
-  activeNavLabel: {
-    fontWeight: "900",
   },
 });

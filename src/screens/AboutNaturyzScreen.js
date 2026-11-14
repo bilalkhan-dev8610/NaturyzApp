@@ -2,14 +2,14 @@ import React from "react";
 import {
   View,
   Text,
-  Image,
   ScrollView,
-  Pressable,
+  Image,
   StyleSheet,
   StatusBar,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
+import TopNavbar from "../components/TopNavbar";
 
 const GREEN = "#78A900";
 const DARK_GREEN = "#578800";
@@ -42,49 +42,21 @@ export default function AboutNaturyzScreen({
       <StatusBar backgroundColor="#FFFFFF" barStyle="dark-content" />
 
       <View style={styles.container}>
-        {/* HEADER */}
-        <View style={styles.header}>
-          <Pressable
-            style={styles.headerButton}
-            onPress={onBack}
-            accessibilityLabel="Go back"
-          >
-            <Ionicons name="arrow-back" size={29} color={TEXT} />
-          </Pressable>
-
-          <View style={styles.logoContainer}>
-            <Image
-              source={require("../../assets/images/naturyz-home-logo.png")}
-              style={styles.logo}
-              resizeMode="contain"
-            />
-          </View>
-
-          <Pressable
-            style={styles.headerButton}
-            onPress={onWishlistPress}
-            accessibilityLabel="Open wishlist"
-          >
-            <Ionicons name="heart-outline" size={28} color={TEXT} />
-          </Pressable>
-
-          <Pressable
-            style={styles.headerButton}
-            onPress={onCartPress}
-            accessibilityLabel="Open cart"
-          >
-            <View>
-              <Ionicons name="cart-outline" size={30} color={TEXT} />
-              {cartCount > 0 && (
-                <View style={styles.cartBadge}>
-                  <Text style={styles.cartBadgeText}>
-                    {cartCount > 99 ? "99+" : cartCount}
-                  </Text>
-                </View>
-              )}
-            </View>
-          </Pressable>
-        </View>
+        {/* REUSABLE TOP NAVBAR */}
+        <TopNavbar
+          leftAction="back"
+          onLeftPress={onBack}
+          onWishlistPress={onWishlistPress}
+          onCartPress={onCartPress}
+          cartCount={cartCount}
+          showWishlist={true}
+          showCart={true}
+          headerBackgroundColor="#FFFFFF"
+          iconColor={TEXT}
+          headerHeight={62}
+          headerBorderColor="#F4F4F4"
+          headerBorderWidth={1}
+        />
 
         <ScrollView
           style={styles.scroll}
@@ -111,18 +83,14 @@ export default function AboutNaturyzScreen({
           {/* OUR MISSION */}
           <View style={styles.infoCard}>
             <View style={styles.infoIconBox}>
-              <Ionicons
-                name="locate-outline"
-                size={43}
-                color={GREEN}
-              />
+              <Ionicons name="locate-outline" size={43} color={GREEN} />
             </View>
 
             <View style={styles.infoContent}>
               <Text style={styles.infoTitle}>Our Mission</Text>
               <Text style={styles.infoDescription}>
-                To make high-quality, science-backed nutrition accessible
-                to everyone for a healthier and happier life.
+                To make high-quality, science-backed nutrition accessible to
+                everyone for a healthier and happier life.
               </Text>
             </View>
           </View>
@@ -130,18 +98,14 @@ export default function AboutNaturyzScreen({
           {/* OUR VISION */}
           <View style={styles.infoCard}>
             <View style={styles.infoIconBox}>
-              <Ionicons
-                name="eye-outline"
-                size={43}
-                color={GREEN}
-              />
+              <Ionicons name="eye-outline" size={43} color={GREEN} />
             </View>
 
             <View style={styles.infoContent}>
               <Text style={styles.infoTitle}>Our Vision</Text>
               <Text style={styles.infoDescription}>
-                To be a trusted global brand in health and wellness,
-                empowering people to achieve their best selves.
+                To be a trusted global brand in health and wellness, empowering
+                people to achieve their best selves.
               </Text>
             </View>
           </View>
@@ -163,11 +127,7 @@ export default function AboutNaturyzScreen({
               {PROMISES.map((item, index) => (
                 <React.Fragment key={item.title}>
                   <View style={styles.promiseItem}>
-                    <Ionicons
-                      name={item.icon}
-                      size={39}
-                      color={GREEN}
-                    />
+                    <Ionicons name={item.icon} size={39} color={GREEN} />
                     <Text style={styles.promiseText}>{item.title}</Text>
                   </View>
 
@@ -193,11 +153,7 @@ export default function AboutNaturyzScreen({
             {STATS.map((item, index) => (
               <React.Fragment key={item.title}>
                 <View style={styles.statItem}>
-                  <Ionicons
-                    name={item.icon}
-                    size={37}
-                    color={GREEN}
-                  />
+                  <Ionicons name={item.icon} size={37} color={GREEN} />
                   <Text style={styles.statLabel}>{item.title}</Text>
                   <Text style={styles.statValue}>{item.value}</Text>
                 </View>
@@ -222,49 +178,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#FFFFFF",
-  },
-  header: {
-    height: 62,
-    paddingHorizontal: 9,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    borderBottomWidth: 1,
-    borderBottomColor: "#F4F4F4",
-  },
-  headerButton: {
-    width: 37,
-    height: 45,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  logoContainer: {
-    flex: 1,
-    height: 53,
-    marginHorizontal: 5,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  logo: {
-    width: "100%",
-    height: "100%",
-  },
-  cartBadge: {
-    position: "absolute",
-    top: -6,
-    right: -7,
-    minWidth: 19,
-    height: 19,
-    borderRadius: 10,
-    backgroundColor: GREEN,
-    paddingHorizontal: 4,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  cartBadgeText: {
-    color: "#FFFFFF",
-    fontSize: 10,
-    fontWeight: "800",
   },
   scroll: {
     flex: 1,

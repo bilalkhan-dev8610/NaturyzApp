@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import {
   View,
   Text,
-  Image,
   ScrollView,
   Pressable,
   StyleSheet,
@@ -16,6 +15,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
+import TopNavbar from "../components/TopNavbar";
 
 const GREEN = "#78A900";
 const DARK_GREEN = "#578800";
@@ -164,49 +164,21 @@ export default function HelpSupportScreen({
       <StatusBar backgroundColor="#FFFFFF" barStyle="dark-content" />
 
       <View style={styles.container}>
-        {/* HEADER */}
-        <View style={styles.header}>
-          <Pressable
-            style={styles.headerButton}
-            onPress={onBack}
-            accessibilityLabel="Go back"
-          >
-            <Ionicons name="arrow-back" size={29} color={TEXT} />
-          </Pressable>
-
-          <View style={styles.logoContainer}>
-            <Image
-              source={require("../../assets/images/naturyz-home-logo.png")}
-              style={styles.logo}
-              resizeMode="contain"
-            />
-          </View>
-
-          <Pressable
-            style={styles.headerButton}
-            onPress={onWishlistPress}
-            accessibilityLabel="Open wishlist"
-          >
-            <Ionicons name="heart-outline" size={28} color={TEXT} />
-          </Pressable>
-
-          <Pressable
-            style={styles.headerButton}
-            onPress={onCartPress}
-            accessibilityLabel="Open cart"
-          >
-            <View>
-              <Ionicons name="cart-outline" size={30} color={TEXT} />
-              {cartCount > 0 && (
-                <View style={styles.cartBadge}>
-                  <Text style={styles.cartBadgeText}>
-                    {cartCount > 99 ? "99+" : cartCount}
-                  </Text>
-                </View>
-              )}
-            </View>
-          </Pressable>
-        </View>
+       {/* REUSABLE TOP NAVBAR */}
+<TopNavbar
+  leftAction="back"
+  onLeftPress={onBack}
+  onWishlistPress={onWishlistPress}
+  onCartPress={onCartPress}
+  cartCount={cartCount}
+  showWishlist={true}
+  showCart={true}
+  headerBackgroundColor="#FFFFFF"
+  iconColor={TEXT}
+  headerHeight={62}
+  headerBorderColor="#F4F4F4"
+  headerBorderWidth={1}
+/>
 
         <ScrollView
           style={styles.scroll}
@@ -530,49 +502,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#FFFFFF",
-  },
-  header: {
-    height: 62,
-    paddingHorizontal: 9,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    borderBottomWidth: 1,
-    borderBottomColor: "#F4F4F4",
-  },
-  headerButton: {
-    width: 37,
-    height: 45,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  logoContainer: {
-    flex: 1,
-    height: 53,
-    marginHorizontal: 5,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  logo: {
-    width: "100%",
-    height: "100%",
-  },
-  cartBadge: {
-    position: "absolute",
-    top: -6,
-    right: -7,
-    minWidth: 19,
-    height: 19,
-    borderRadius: 10,
-    backgroundColor: GREEN,
-    paddingHorizontal: 4,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  cartBadgeText: {
-    color: "#FFFFFF",
-    fontSize: 10,
-    fontWeight: "800",
   },
   scroll: {
     flex: 1,

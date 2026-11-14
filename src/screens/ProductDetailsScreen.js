@@ -30,6 +30,7 @@ const BORDER = "#EAEDE2";
 export default function ProductDetailsScreen({
   product,
   cartCount = 0,
+  cartItems = [],
   onBack,
   onCartPress,
   onAddToCart,
@@ -38,7 +39,7 @@ export default function ProductDetailsScreen({
   const details = wheyProteinDetails;
 
   const [selectedFlavor, setSelectedFlavor] = useState(
-    product?.flavour || product?.flavor || "Rich Chocolate"
+    product?.flavour || product?.flavor || "Rich Chocolate",
   );
   const [selectedSize, setSelectedSize] = useState("1kg");
   const [descriptionOpen, setDescriptionOpen] = useState(false);
@@ -46,8 +47,10 @@ export default function ProductDetailsScreen({
   const [isWishlisted, setIsWishlisted] = useState(false);
 
   const selectedSizeData = useMemo(
-    () => details.sizes.find((size) => size.id === selectedSize) || details.sizes[0],
-    [selectedSize]
+    () =>
+      details.sizes.find((size) => size.id === selectedSize) ||
+      details.sizes[0],
+    [selectedSize],
   );
 
   const price = selectedSizeData.price;
@@ -58,8 +61,15 @@ export default function ProductDetailsScreen({
   const displayName = product?.name || details.name;
   const rating = product?.rating ?? details.rating;
   const reviews = product?.reviews ?? details.reviews;
+  const baseProductId = product?.id || details.id;
 
+  const cartItemId = `${baseProductId}-${selectedSize}-${selectedFlavor}`;
+
+  const isInCart = cartItems.some(
+    (item) => item.id === baseProductId || item.id === cartItemId,
+  );
   const handleAddToCart = () => {
+    if (isInCart) return;
     if (!onAddToCart) {
       Alert.alert("Cart", "Cart action is not connected.");
       return;
@@ -95,14 +105,14 @@ export default function ProductDetailsScreen({
           name: displayName,
           image: displayImage,
         },
-        nextValue
+        nextValue,
       );
     } else {
       Alert.alert(
         "Wishlist",
         nextValue
           ? `${displayName} added to your demo wishlist.`
-          : `${displayName} removed from your demo wishlist.`
+          : `${displayName} removed from your demo wishlist.`,
       );
     }
   };
@@ -236,9 +246,7 @@ export default function ProductDetailsScreen({
 
             <View style={styles.ratingLine}>
               <Ionicons name="star" size={18} color="#F5B800" />
-              <Text style={styles.ratingText}>
-                {Number(rating).toFixed(1)}
-              </Text>
+              <Text style={styles.ratingText}>{Number(rating).toFixed(1)}</Text>
               <Text style={styles.reviewText}>
                 ({Number(reviews).toLocaleString("en-IN")} Reviews)
               </Text>
@@ -270,10 +278,7 @@ export default function ProductDetailsScreen({
                   <Pressable
                     key={flavor.id}
                     onPress={() => setSelectedFlavor(flavor.label)}
-                    style={[
-                      styles.flavorChip,
-                      active && styles.selectedChip,
-                    ]}
+                    style={[styles.flavorChip, active && styles.selectedChip]}
                   >
                     <Ionicons
                       name={flavor.icon}
@@ -311,10 +316,7 @@ export default function ProductDetailsScreen({
                   <Pressable
                     key={size.id}
                     onPress={() => setSelectedSize(size.id)}
-                    style={[
-                      styles.sizeCard,
-                      active && styles.selectedSizeCard,
-                    ]}
+                    style={[styles.sizeCard, active && styles.selectedSizeCard]}
                   >
                     <Text
                       style={[
@@ -364,7 +366,7 @@ export default function ProductDetailsScreen({
               "document-text-outline",
               descriptionOpen,
               () => setDescriptionOpen((value) => !value),
-              details.productDescription
+              details.productDescription,
             )}
 
             {renderAccordion(
@@ -372,7 +374,7 @@ export default function ProductDetailsScreen({
               "nutrition-outline",
               nutritionOpen,
               () => setNutritionOpen((value) => !value),
-              details.nutritionNote
+              details.nutritionNote,
             )}
           </View>
         </ScrollView>
@@ -396,13 +398,21 @@ export default function ProductDetailsScreen({
 
           <Pressable
             onPress={handleAddToCart}
+            disabled={isInCart}
             style={({ pressed }) => [
               styles.addButton,
-              pressed && styles.pressed,
+              isInCart && { backgroundColor: "#777777", opacity: 0.7 },
+              pressed && !isInCart && styles.pressed,
             ]}
           >
-            <Ionicons name="cart-outline" size={21} color="#FFFFFF" />
-            <Text style={styles.addButtonText}>Add to Cart</Text>
+            <Ionicons
+              name={isInCart ? "checkmark-circle" : "cart-outline"}
+              size={21}
+              color="#FFFFFF"
+            />
+            <Text style={styles.addButtonText}>
+              {isInCart ? "Added to Cart" : "Add to Cart"}
+            </Text>
           </Pressable>
         </View>
       </View>

@@ -13,6 +13,9 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { ordersData } from "../data/ordersData";
 import * as ImagePicker from "expo-image-picker";
+import BottomTabBar from "../components/BottomTabBar";
+import TopNavbar from "../components/TopNavbar";
+
 
 const GREEN = "#78A900";
 const DARK_GREEN = "#578800";
@@ -150,8 +153,8 @@ export default function ProfileScreen({
         break;
 
       case "privacy":
-  onPrivacyPress?.();
-  break;
+        onPrivacyPress?.();
+        break;
 
       case "terms":
         onTermsPress?.();
@@ -238,43 +241,18 @@ export default function ProfileScreen({
       <StatusBar backgroundColor="#FFFFFF" barStyle="dark-content" />
 
       <View style={styles.container}>
-        {/* HEADER */}
-        <View style={styles.header}>
-          <View style={styles.headerSide} />
-
-          <View style={styles.logoContainer}>
-            <Image
-              source={require("../../assets/images/naturyz-home-logo.png")}
-              style={styles.logo}
-              resizeMode="contain"
-            />
-          </View>
-
-          <Pressable
-            style={styles.headerButton}
-            onPress={onWishlistPress}
-            accessibilityLabel="Open wishlist"
-          >
-            <Ionicons name="heart-outline" size={28} color={TEXT} />
-          </Pressable>
-
-          <Pressable
-            style={styles.headerButton}
-            onPress={onCartPress}
-            accessibilityLabel="Open cart"
-          >
-            <View>
-              <Ionicons name="cart-outline" size={30} color={TEXT} />
-              {cartCount > 0 && (
-                <View style={styles.cartBadge}>
-                  <Text style={styles.cartBadgeText}>
-                    {cartCount > 99 ? "99+" : cartCount}
-                  </Text>
-                </View>
-              )}
-            </View>
-          </Pressable>
-        </View>
+        {/* REUSABLE TOP NAVBAR */}
+        <TopNavbar
+          leftAction="none"
+          onWishlistPress={onWishlistPress}
+          onCartPress={onCartPress}
+          cartCount={cartCount}
+          headerBackgroundColor="#FFFFFF"
+          iconColor={TEXT}
+          headerHeight={62}
+          headerBorderColor="#F4F4F4"
+          headerBorderWidth={1}
+        />
 
         <ScrollView
           style={styles.scroll}
@@ -409,37 +387,8 @@ export default function ProfileScreen({
           </Pressable>
         </ScrollView>
 
-        {/* FIXED BOTTOM NAVIGATION */}
-        <View style={styles.bottomNavigation}>
-          {[
-            { label: "Home", icon: "home-outline", activeIcon: "home" },
-            { label: "Categories", icon: "grid-outline", activeIcon: "grid" },
-            { label: "Search", icon: "search-outline", activeIcon: "search" },
-            { label: "Orders", icon: "cube-outline", activeIcon: "cube" },
-            { label: "Profile", icon: "person-outline", activeIcon: "person" },
-          ].map((tab) => {
-            const isActive = tab.label === "Profile";
-
-            return (
-              <Pressable
-                key={tab.label}
-                style={styles.tabButton}
-                onPress={() => onTabPress?.(tab.label)}
-              >
-                <Ionicons
-                  name={isActive ? tab.activeIcon : tab.icon}
-                  size={29}
-                  color={isActive ? GREEN : "#606572"}
-                />
-                <Text
-                  style={[styles.tabLabel, isActive && styles.activeTabLabel]}
-                >
-                  {tab.label}
-                </Text>
-              </Pressable>
-            );
-          })}
-        </View>
+        {/* REUSABLE BOTTOM NAVIGATION */}
+        <BottomTabBar activeTab="Profile" onTabPress={onTabPress} />
       </View>
     </SafeAreaView>
   );
@@ -453,52 +402,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#FFFFFF",
-  },
-  header: {
-    height: 62,
-    paddingHorizontal: 9,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    borderBottomWidth: 1,
-    borderBottomColor: "#F4F4F4",
-  },
-  headerSide: {
-    width: 35,
-  },
-  headerButton: {
-    width: 37,
-    height: 45,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  logoContainer: {
-    flex: 1,
-    height: 53,
-    marginHorizontal: 5,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  logo: {
-    width: "100%",
-    height: "100%",
-  },
-  cartBadge: {
-    position: "absolute",
-    top: -6,
-    right: -7,
-    minWidth: 19,
-    height: 19,
-    borderRadius: 10,
-    backgroundColor: GREEN,
-    paddingHorizontal: 4,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  cartBadgeText: {
-    color: "#FFFFFF",
-    fontSize: 10,
-    fontWeight: "800",
   },
   scroll: {
     flex: 1,
@@ -693,34 +596,5 @@ const styles = StyleSheet.create({
     color: "#D71920",
     fontSize: 20,
     fontWeight: "900",
-  },
-  bottomNavigation: {
-    height: 77,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-around",
-    backgroundColor: "#FFFFFF",
-    borderTopWidth: 1,
-    borderTopColor: "#E8E8E8",
-    elevation: 9,
-    shadowColor: "#000000",
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
-    shadowOffset: { width: 0, height: -2 },
-  },
-  tabButton: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 3,
-  },
-  tabLabel: {
-    color: "#606572",
-    fontSize: 12,
-    fontWeight: "500",
-  },
-  activeTabLabel: {
-    color: GREEN,
-    fontWeight: "800",
   },
 });

@@ -14,6 +14,9 @@ import {
 
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
+import BottomTabBar from "../components/BottomTabBar";
+import TopNavbar from "../components/TopNavbar";
+import ProductCard from "../components/product/ProductCard";
 
 import {
   sportsNutritionCategories,
@@ -39,9 +42,9 @@ export default function SportsNutritionScreen({
   onAddToCart,
   onTabPress,
   cartCount = 0,
+  cartItems = [],
 }) {
   const { width } = useWindowDimensions();
-
   const [activeCategory, setActiveCategory] = useState("All");
   const [sortBy, setSortBy] = useState("Recommended");
   const [filterVisible, setFilterVisible] = useState(false);
@@ -74,21 +77,12 @@ export default function SportsNutritionScreen({
   }, [activeCategory, sortBy, onlyDiscounted]);
 
   const toggleWishlist = (product) => {
-  const alreadySaved = wishlistItems.some(
-    (item) => item.id === product.id
-  );
+    const alreadySaved = wishlistItems.some((item) => item.id === product.id);
 
-  if (onWishlistToggle) {
-    onWishlistToggle(product, !alreadySaved);
-  }
-
-  Alert.alert(
-    "Wishlist",
-    alreadySaved
-      ? `${product.name} removed from wishlist.`
-      : `${product.name} added to wishlist.`
-  );
-};
+    if (onWishlistToggle) {
+      onWishlistToggle(product, !alreadySaved);
+    }
+  };
 
   const handleAddToCart = (product) => {
     if (onAddToCart) {
@@ -128,92 +122,24 @@ export default function SportsNutritionScreen({
     }
   };
 
-  const tabs = [
-    { label: "Home", icon: "home-outline", activeIcon: "home" },
-    { label: "Categories", icon: "grid-outline", activeIcon: "grid" },
-    { label: "Search", icon: "search-outline", activeIcon: "search" },
-    { label: "Orders", icon: "cube-outline", activeIcon: "cube" },
-    { label: "Profile", icon: "person-outline", activeIcon: "person" },
-  ];
-
   const renderProductCard = (product) => {
-    const isWishlisted = wishlistItems.some(
-  (item) => item.id === product.id
+    const isWishlisted = wishlistItems.some((item) => item.id === product.id);
+   const isInCart = cartItems.some(
+  (item) =>
+    item.id === product.id ||
+    item.productId === product.id
 );
-
     return (
-      <Pressable
+      <ProductCard
         key={product.id}
-        onPress={() => handleProductPress(product)}
-        style={({ pressed }) => [
-          styles.productCard,
-          { width: cardWidth },
-          pressed && styles.cardPressed,
-        ]}
-      >
-        {product.badge && (
-          <View style={styles.bestSellerBadge}>
-            <Text style={styles.bestSellerText}>{product.badge}</Text>
-          </View>
-        )}
-
-        <Pressable
-          onPress={() => toggleWishlist(product)}
-          style={styles.wishlistButton}
-          hitSlop={8}
-        >
-          <Ionicons
-            name={isWishlisted ? "heart" : "heart-outline"}
-            size={27}
-            color={isWishlisted ? "#E53935" : "#111111"}
-          />
-        </Pressable>
-
-        <Image
-          source={product.image}
-          style={styles.productImage}
-          resizeMode="contain"
-        />
-
-        <View style={styles.productInfo}>
-          <Text style={styles.productName} numberOfLines={1}>
-            {product.name}
-          </Text>
-
-          <Text style={styles.productVariant} numberOfLines={1}>
-            {product.size} | {product.flavour}
-          </Text>
-
-          <View style={styles.ratingRow}>
-            <Ionicons name="star" size={17} color="#F5B800" />
-            <Text style={styles.ratingValue}>{product.rating.toFixed(1)}</Text>
-            <Text style={styles.reviewCount}>
-              ({product.reviews.toLocaleString("en-IN")} Reviews)
-            </Text>
-          </View>
-
-          <View style={styles.priceRow}>
-            <Text style={styles.price}>{formatPrice(product.price)}</Text>
-
-            <Text style={styles.mrp}>{formatPrice(product.mrp)}</Text>
-
-            <View style={styles.discountBadge}>
-              <Text style={styles.discountText}>{product.discount}% Off</Text>
-            </View>
-          </View>
-
-          <Pressable
-            onPress={() => handleAddToCart(product)}
-            style={({ pressed }) => [
-              styles.addToCartButton,
-              pressed && styles.buttonPressed,
-            ]}
-          >
-            <Ionicons name="cart-outline" size={20} color="#FFFFFF" />
-            <Text style={styles.addToCartText}>Add to Cart</Text>
-          </Pressable>
-        </View>
-      </Pressable>
+        product={product}
+        width={cardWidth}
+        isInCart={isInCart}
+        isWishlisted={isWishlisted}
+        onPress={handleProductPress}
+        onWishlistPress={toggleWishlist}
+        onAddToCart={handleAddToCart}
+      />
     );
   };
 
@@ -222,48 +148,25 @@ export default function SportsNutritionScreen({
       <StatusBar backgroundColor="#FFFFFF" barStyle="dark-content" />
 
       <View style={styles.container}>
-        {/* HEADER */}
-        <View style={styles.header}>
-          <Pressable style={styles.headerButton} onPress={onBack} hitSlop={8}>
-            <Ionicons name="arrow-back" size={29} color={TEXT} />
-          </Pressable>
-
-          <View style={styles.logoWrapper}>
-            <Image
-              source={require("../../assets/images/naturyz-home-logo.png")}
-              style={styles.logo}
-              resizeMode="contain"
-            />
-          </View>
-
-          <Pressable
-            style={styles.headerButton}
-            onPress={() =>
-              onWishlistPress
-                ? onWishlistPress()
-                : Alert.alert("Wishlist", "Your saved products are shown here.")
-            }
-            hitSlop={8}
-          >
-            <Ionicons name="heart-outline" size={29} color={TEXT} />
-          </Pressable>
-
-          <Pressable
-            style={styles.headerButton}
-            onPress={onCartPress}
-            hitSlop={8}
-          >
-            <View>
-              <Ionicons name="cart-outline" size={31} color={TEXT} />
-
-              {cartCount > 0 && (
-                <View style={styles.cartBadge}>
-                  <Text style={styles.cartBadgeText}>{cartCount}</Text>
-                </View>
-              )}
-            </View>
-          </Pressable>
-        </View>
+        {/* REUSABLE TOP NAVBAR */}
+        <TopNavbar
+          leftAction="back"
+          onLeftPress={onBack}
+          onWishlistPress={
+            onWishlistPress ||
+            (() =>
+              Alert.alert("Wishlist", "Your saved products are shown here."))
+          }
+          onCartPress={onCartPress}
+          cartCount={cartCount}
+          showWishlist={true}
+          showCart={true}
+          headerBackgroundColor="#FFFFFF"
+          iconColor={TEXT}
+          headerHeight={66}
+          headerBorderColor="#F4F4F4"
+          headerBorderWidth={1}
+        />
 
         <ScrollView
           style={styles.scrollView}
@@ -358,39 +261,8 @@ export default function SportsNutritionScreen({
           <View style={styles.bottomSpace} />
         </ScrollView>
 
-        {/* FIXED BOTTOM NAVIGATION */}
-        <View style={styles.bottomNavigation}>
-          {tabs.map((tab) => {
-            const active = tab.label === "Categories";
-
-            return (
-              <Pressable
-                key={tab.label}
-                onPress={() => handleTabPress(tab.label)}
-                style={styles.tabItem}
-              >
-                <View
-                  style={[
-                    styles.tabIconContainer,
-                    active && styles.activeTabContainer,
-                  ]}
-                >
-                  <Ionicons
-                    name={active ? tab.activeIcon : tab.icon}
-                    size={27}
-                    color={active ? DARK_GREEN : TEXT}
-                  />
-                </View>
-
-                <Text
-                  style={[styles.tabLabel, active && styles.activeTabLabel]}
-                >
-                  {tab.label}
-                </Text>
-              </Pressable>
-            );
-          })}
-        </View>
+        {/* REUSABLE BOTTOM NAVIGATION */}
+        <BottomTabBar activeTab="Categories" onTabPress={handleTabPress} />
       </View>
 
       {/* SORT MODAL */}
@@ -508,53 +380,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
   },
 
-  header: {
-    height: 76,
-    paddingHorizontal: 14,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    backgroundColor: "#FFFFFF",
-  },
-
-  headerButton: {
-    width: 39,
-    height: 48,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-
-  logoWrapper: {
-    flex: 1,
-    height: 62,
-    marginHorizontal: 7,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-
-  logo: {
-    width: "100%",
-    height: "100%",
-  },
-
-  cartBadge: {
-    position: "absolute",
-    right: -7,
-    top: -6,
-    width: 21,
-    height: 21,
-    borderRadius: 11,
-    backgroundColor: GREEN,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-
-  cartBadgeText: {
-    color: "#FFFFFF",
-    fontSize: 11,
-    fontWeight: "800",
-  },
-
   scrollView: {
     flex: 1,
   },
@@ -667,150 +492,6 @@ const styles = StyleSheet.create({
     rowGap: 12,
   },
 
-  productCard: {
-    borderRadius: 21,
-    borderWidth: 1,
-    borderColor: "#EEEEEE",
-    backgroundColor: "#FFFFFF",
-    overflow: "hidden",
-    elevation: 2,
-    shadowColor: "#000000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 4,
-  },
-
-  bestSellerBadge: {
-    position: "absolute",
-    top: 9,
-    left: 9,
-    zIndex: 2,
-    backgroundColor: GREEN,
-    paddingHorizontal: 9,
-    paddingVertical: 5,
-    borderTopRightRadius: 5,
-    borderBottomRightRadius: 5,
-    borderBottomLeftRadius: 5,
-  },
-
-  bestSellerText: {
-    color: "#FFFFFF",
-    fontSize: 11,
-    fontWeight: "700",
-  },
-
-  wishlistButton: {
-    position: "absolute",
-    top: 12,
-    right: 11,
-    zIndex: 3,
-    width: 35,
-    height: 35,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-
-  productImage: {
-    width: "100%",
-    height: 190,
-    marginTop: 8,
-  },
-
-  productInfo: {
-    paddingHorizontal: 11,
-    paddingBottom: 11,
-  },
-
-  productName: {
-    color: TEXT,
-    fontSize: 15,
-    fontWeight: "800",
-  },
-
-  productVariant: {
-    color: MUTED,
-    fontSize: 11,
-    marginTop: 4,
-  },
-
-  ratingRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-    marginTop: 9,
-  },
-
-  ratingValue: {
-    color: DARK_GREEN,
-    fontSize: 12,
-    fontWeight: "700",
-  },
-
-  reviewCount: {
-    flex: 1,
-    color: MUTED,
-    fontSize: 10,
-  },
-
-  priceRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    flexWrap: "wrap",
-    gap: 6,
-    marginTop: 10,
-    marginBottom: 11,
-  },
-
-  price: {
-    color: TEXT,
-    fontSize: 17,
-    fontWeight: "900",
-  },
-
-  mrp: {
-    color: MUTED,
-    fontSize: 10,
-    textDecorationLine: "line-through",
-  },
-
-  discountBadge: {
-    backgroundColor: "#F0F6DE",
-    paddingHorizontal: 7,
-    paddingVertical: 5,
-    borderRadius: 16,
-  },
-
-  discountText: {
-    color: DARK_GREEN,
-    fontSize: 10,
-    fontWeight: "800",
-  },
-
-  addToCartButton: {
-    height: 43,
-    borderRadius: 24,
-    backgroundColor: GREEN,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
-  },
-
-  addToCartText: {
-    color: "#FFFFFF",
-    fontSize: 13,
-    fontWeight: "800",
-  },
-
-  cardPressed: {
-    opacity: 0.88,
-    transform: [{ scale: 0.99 }],
-  },
-
-  buttonPressed: {
-    opacity: 0.8,
-  },
-
   emptyState: {
     paddingVertical: 55,
     alignItems: "center",
@@ -833,66 +514,6 @@ const styles = StyleSheet.create({
 
   bottomSpace: {
     height: 16,
-  },
-
-  bottomNavigation: {
-    height: 75,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-around",
-    backgroundColor: "#FFFFFF",
-    borderTopWidth: 1,
-    borderTopColor: "#EEEEEE",
-    paddingHorizontal: 5,
-    elevation: 10,
-    shadowColor: "#000000",
-    shadowOffset: { width: 0, height: -3 },
-    shadowOpacity: 0.07,
-    shadowRadius: 5,
-  },
-
-  tabItem: {
-    flex: 1,
-    height: "100%",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-
-  tabIconContainer: {
-    width: 57,
-    height: 37,
-    borderRadius: 22,
-    alignItems: "center",
-    justifyContent: "center",
-    position: "relative",
-  },
-
-  activeTabContainer: {
-    backgroundColor: "#F0F6DE",
-  },
-
-  tabLabel: {
-    color: "#171717",
-    fontSize: 11,
-    fontWeight: "500",
-    marginTop: 2,
-  },
-
-  activeTabLabel: {
-    color: DARK_GREEN,
-    fontWeight: "800",
-  },
-
-  tabCartBadge: {
-    position: "absolute",
-    right: 1,
-    top: -4,
-    width: 18,
-    height: 18,
-    borderRadius: 10,
-    backgroundColor: GREEN,
-    alignItems: "center",
-    justifyContent: "center",
   },
 
   modalOverlay: {

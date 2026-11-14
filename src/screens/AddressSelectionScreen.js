@@ -1,9 +1,7 @@
-
 import React from "react";
 import {
   View,
   Text,
-  Image,
   ScrollView,
   Pressable,
   StyleSheet,
@@ -12,6 +10,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
+import TopNavbar from "../components/TopNavbar";
 
 const GREEN = "#78A900";
 const DARK_GREEN = "#578800";
@@ -81,10 +80,7 @@ export default function AddressSelectionScreen({
     return (
       <View
         key={String(address.id)}
-        style={[
-          styles.addressCard,
-          isSelected && styles.selectedAddressCard,
-        ]}
+        style={[styles.addressCard, isSelected && styles.selectedAddressCard]}
       >
         <View style={styles.cardMain}>
           <View style={styles.addressTypeIcon}>
@@ -97,9 +93,7 @@ export default function AddressSelectionScreen({
 
           <View style={styles.addressDetails}>
             <View style={styles.addressTitleRow}>
-              <Text style={styles.addressType}>
-                {address.type || "Other"}
-              </Text>
+              <Text style={styles.addressType}>{address.type || "Other"}</Text>
 
               {isDefault && (
                 <View style={styles.defaultBadge}>
@@ -113,16 +107,14 @@ export default function AddressSelectionScreen({
             )}
 
             <Text style={styles.addressText}>
-              {getAddressText(address) || address.fullAddress || "Address details unavailable"}
+              {getAddressText(address) ||
+                address.fullAddress ||
+                "Address details unavailable"}
             </Text>
 
             {!!address.phone && (
               <View style={styles.phoneRow}>
-                <Ionicons
-                  name="call-outline"
-                  size={21}
-                  color={MUTED}
-                />
+                <Ionicons name="call-outline" size={21} color={MUTED} />
                 <Text style={styles.phoneText}>{address.phone}</Text>
               </View>
             )}
@@ -171,50 +163,21 @@ export default function AddressSelectionScreen({
       <StatusBar backgroundColor="#FFFFFF" barStyle="dark-content" />
 
       <View style={styles.container}>
-        {/* HEADER */}
-        <View style={styles.header}>
-          <Pressable
-            style={styles.headerButton}
-            onPress={onBack}
-            hitSlop={8}
-          >
-            <Ionicons name="arrow-back" size={31} color="#111111" />
-          </Pressable>
-
-          <View style={styles.logoContainer}>
-            <Image
-              source={require("../../assets/images/naturyz-home-logo.png")}
-              style={styles.logo}
-              resizeMode="contain"
-            />
-          </View>
-
-          <Pressable
-            style={styles.headerButton}
-            onPress={onWishlistPress}
-            hitSlop={8}
-          >
-            <Ionicons name="heart-outline" size={29} color="#111111" />
-          </Pressable>
-
-          <Pressable
-            style={styles.headerButton}
-            onPress={onCartPress}
-            hitSlop={8}
-          >
-            <View>
-              <Ionicons name="cart-outline" size={31} color="#111111" />
-
-              {cartCount > 0 && (
-                <View style={styles.cartBadge}>
-                  <Text style={styles.cartBadgeText}>
-                    {cartCount > 99 ? "99+" : cartCount}
-                  </Text>
-                </View>
-              )}
-            </View>
-          </Pressable>
-        </View>
+        {/* REUSABLE TOP NAVBAR */}
+        <TopNavbar
+          leftAction="back"
+          onLeftPress={onBack}
+          onWishlistPress={onWishlistPress}
+          onCartPress={onCartPress}
+          cartCount={cartCount}
+          showWishlist={true}
+          showCart={true}
+          headerBackgroundColor="#FFFFFF"
+          iconColor={TEXT}
+          headerHeight={66}
+          headerBorderColor="#F4F4F4"
+          headerBorderWidth={1}
+        />
 
         <ScrollView
           style={styles.scroll}
@@ -237,11 +200,7 @@ export default function AddressSelectionScreen({
           ) : (
             <View style={styles.emptyContainer}>
               <View style={styles.emptyIconCircle}>
-                <Ionicons
-                  name="location-outline"
-                  size={48}
-                  color={GREEN}
-                />
+                <Ionicons name="location-outline" size={48} color={GREEN} />
               </View>
 
               <Text style={styles.emptyTitle}>No Saved Addresses</Text>
@@ -277,49 +236,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#FFFFFF",
-  },
-  header: {
-    height: 66,
-    paddingHorizontal: 9,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    borderBottomWidth: 1,
-    borderBottomColor: "#F4F4F4",
-  },
-  headerButton: {
-    width: 38,
-    height: 46,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  logoContainer: {
-    flex: 1,
-    height: 54,
-    marginHorizontal: 5,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  logo: {
-    width: "100%",
-    height: "100%",
-  },
-  cartBadge: {
-    position: "absolute",
-    top: -6,
-    right: -7,
-    minWidth: 19,
-    height: 19,
-    borderRadius: 10,
-    backgroundColor: GREEN,
-    paddingHorizontal: 4,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  cartBadgeText: {
-    color: "#FFFFFF",
-    fontSize: 10,
-    fontWeight: "800",
   },
   scroll: {
     flex: 1,
